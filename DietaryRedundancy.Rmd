@@ -1,0 +1,300 @@
+---
+title: "Dietary Redundancy"
+author: "Camille"
+date: "2/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Load Packages}
+library(writexl)
+library(readr)
+library(vegan)
+library(ecodist)
+library(dplyr)
+library(tidyverse)
+library(ggpubr)
+library(network)
+library(spaa)
+library(bipartite)
+library(viridis)
+
+```
+
+```{r Workspace setup}
+wd_path <- "/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/"
+getwd()
+data_path <- 'Data/'
+save_path <- 'Outputs/Expert/'
+source_path <- 'HelperScripts/'
+list_overlap <- list()
+list_width <- list()
+```
+
+```{r Niche Width/ Breadth: Imputed Network}
+
+#1) DATA PREPARATION
+#imputed network
+for(i in 1:5){
+  
+  source("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/HelperScripts/SimDataManagement.R")
+
+trees.data2 <- tdat_frug2 %>%
+  dplyr::select(Espece, ele, ape, monkey, ceph, bat, bird, carnivore)%>%
+   dplyr::group_by(Espece)%>%
+    dplyr::summarise(sum_ele=sum(ele),
+            sum_ape=sum(ape),
+            sum_monkey=sum(monkey),
+            sum_ceph=sum(ceph),
+            sum_bat=sum(bat),
+            sum_bird=sum(bird),
+            sum_carniore=sum(carnivore)
+            )
+
+trees.data2$NDispersed <- rowSums(trees.data2[,-1])
+trees.data2 <- trees.data2[trees.data2$NDispersed!=0,]
+
+trees.data3 <- as.data.frame(t(trees.data2))
+colnames(trees.data3) <- trees.data3[1,]
+trees.data3 <- trees.data3[-1,]
+trees.data3 <- trees.data3[-6,]
+
+trees.data4 <- as.data.frame(sapply(trees.data3, as.numeric))
+rownames(trees.data4) <- rownames(trees.data3)
+rownames(trees.data4) <- c("Elephant", "Ape", "Monkey", "Ungulate", "Bat", "Bird", "Carnivore")
+
+
+trees.data5 <- as.data.frame(t(trees.data4))
+niche_width <- niche.width(trees.data5 , method="levins")
+niche_width <- as.matrix(niche_width)
+niche_width <- as.data.frame(niche_width)
+
+list_width[[i]] <- niche_width
+
+niche_overlap_sch <-niche.overlap(trees.data5 , method="schoener")
+niche_overlap_sch <- as.matrix(niche_overlap_sch)
+niche_overlap_sch <- as.data.frame(niche_overlap_sch)
+niche_overlap_sch$Taxa2 <- rownames(niche_overlap_sch)
+niche_overlap_sch2 <- niche_overlap_sch %>%pivot_longer(cols=Elephant:Carnivore)
+niche_overlap_sch2$value[niche_overlap_sch2$value==0] <- NA
+niche_overlap_sch3 <- niche_overlap_sch2
+
+niche_overlap_sch4 <- niche_overlap_sch3%>% filter(!is.na(value), value!=0)
+
+ list_overlap[[i]] <- niche_overlap_sch4 
+}
+
+
+class(list_overlap)
+df_overlap <- bind_rows(list_overlap, .id = "column_label")
+df_width <- bind_rows(list_width, .id = "column_label")
+
+df_overlap2 <- df_overlap %>% group_by(Taxa2, name) %>% dplyr::summarise(meanvalue=mean(value), sdvalue =sd(value))
+df_width_ele <- mean(df_width$Elephant)
+df_width_ape <- mean(df_width$Ape)
+df_width_monkey <- mean(df_width$Monkey)
+df_width_ceph <- mean(df_width$Ungulate)
+df_width_bird <- mean(df_width$Bird)
+df_width_bat <- mean(df_width$Bat)
+df_width_carnivore <- mean(df_width$Carnivore)
+
+df_overlap3 <- df_overlap2
+
+
+```
+
+```{r Niche Breadth/ Width: Observed Network}
+#Observed network
+tdat_frug2 <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Data/tdat_frug2_observed.csv")
+
+trees.data_obs <- tdat_frug2
+
+trees.data2_obs <-trees.data_obs %>%
+  dplyr::select(Espece, ele, ape, monkey, ceph, bat, bird, carnivore)%>%
+   dplyr::group_by(Espece)%>%
+    dplyr::summarise(sum_ele=sum(ele),
+            sum_ape=sum(ape),
+            sum_monkey=sum(monkey),
+            sum_ceph=sum(ceph),
+            sum_bat=sum(bat),
+            sum_bird=sum(bird),
+            sum_carniore=sum(carnivore)
+            )
+
+trees.data2_obs$NDispersed <- rowSums(trees.data2_obs[,-1])
+trees.data2_obs <- trees.data2_obs[trees.data2_obs$NDispersed!=0,]
+
+trees.data3_obs <- as.data.frame(t(trees.data2_obs))
+colnames(trees.data3_obs) <- trees.data3_obs[1,]
+trees.data3_obs <- trees.data3_obs[-1,]
+trees.data3_obs <- trees.data3_obs[-6,]
+
+trees.data4_obs <- as.data.frame(sapply(trees.data3_obs, as.numeric))
+rownames(trees.data4_obs) <- rownames(trees.data3_obs)
+rownames(trees.data4_obs) <- c("Elephant", "Ape", "Monkey", "Ungulate", "Bat", "Bird", "Carnivore")
+
+
+
+trees.data5_obs <- as.data.frame(t(trees.data4_obs))
+niche_width_obs <- niche.width(trees.data5_obs , method="levins")
+niche_width_obs <- as.matrix(niche_width_obs)
+niche_width_obs <- as.data.frame(niche_width_obs)
+
+niche_overlap_sch_obs <-niche.overlap(trees.data5_obs , method="schoener")
+niche_overlap_sch_obs <- as.matrix(niche_overlap_sch_obs)
+niche_overlap_sch_obs <- as.data.frame(niche_overlap_sch_obs)
+niche_overlap_sch_obs$Taxa2 <- rownames(niche_overlap_sch_obs)
+niche_overlap_sch_obs2 <- niche_overlap_sch_obs %>%pivot_longer(cols=Elephant:Carnivore)
+niche_overlap_sch_obs2$value[niche_overlap_sch_obs2$value==0] <- NA
+niche_overlap_sch_obs3 <- niche_overlap_sch_obs2
+
+```
+
+```{r Niche Width and Overlap Plot}
+
+niche_overlap_sch4 <- niche_overlap_sch3
+niche_overlap_sch4$value[niche_overlap_sch4$Taxa2=="Ungulate"] <- NA
+niche_overlap_sch4$value[niche_overlap_sch4$Taxa2=="Monkey" &niche_overlap_sch4$name!="Ungulate" ] <- NA
+niche_overlap_sch4$value[niche_overlap_sch4$Taxa2=="Elephant" &niche_overlap_sch4$name!="Ungulate" &niche_overlap_sch4$name!="Monkey"] <- NA
+niche_overlap_sch4$value[niche_overlap_sch4$Taxa2=="Carnivore" &niche_overlap_sch4$name!="Ungulate" &niche_overlap_sch4$name!="Monkey"&niche_overlap_sch4$name!="Elephant"] <- NA
+niche_overlap_sch4$value[niche_overlap_sch4$Taxa2=="Bird" &niche_overlap_sch4$name!="Ungulate" &niche_overlap_sch4$name!="Monkey"&niche_overlap_sch4$name!="Elephant"&niche_overlap_sch4$name!="Carnivore"] <- NA
+niche_overlap_sch4$value[niche_overlap_sch4$Taxa2=="Bat" &niche_overlap_sch4$name!="Ungulate" &niche_overlap_sch4$name!="Monkey"&niche_overlap_sch4$name!="Elephant"&niche_overlap_sch4$name!="Carnivore"&niche_overlap_sch4$name!="Bird"] <- NA 
+
+niche_overlap_plot <- ggplot(niche_overlap_sch4, aes(Taxa2, name, fill= value)) + 
+  geom_tile()+
+  scale_fill_gradient(low = "lightskyblue1", high = "deepskyblue4", na.value="white", name="Niche Overlap")+
+  ylab("Taxa")+
+  xlab("Taxa")+
+  theme_classic()
+
+niche_overlap_sch_obs4 <- niche_overlap_sch_obs3
+niche_overlap_sch_obs4$value[niche_overlap_sch_obs4$Taxa2=="Ungulate"] <- NA
+niche_overlap_sch_obs4$value[niche_overlap_sch_obs4$Taxa2=="Monkey" &niche_overlap_sch_obs4$name!="Ungulate" ] <- NA
+niche_overlap_sch_obs4$value[niche_overlap_sch_obs4$Taxa2=="Elephant" &niche_overlap_sch_obs4$name!="Ungulate" &niche_overlap_sch_obs4$name!="Monkey"] <- NA
+niche_overlap_sch_obs4$value[niche_overlap_sch_obs4$Taxa2=="Carnivore" &niche_overlap_sch_obs4$name!="Ungulate" &niche_overlap_sch_obs4$name!="Monkey"&niche_overlap_sch_obs4$name!="Elephant"] <- NA
+niche_overlap_sch_obs4$value[niche_overlap_sch_obs4$Taxa2=="Bird" &niche_overlap_sch_obs4$name!="Ungulate" &niche_overlap_sch_obs4$name!="Monkey"&niche_overlap_sch_obs4$name!="Elephant"&niche_overlap_sch_obs4$name!="Carnivore"] <- NA
+niche_overlap_sch_obs4$value[niche_overlap_sch_obs4$Taxa2=="Bat" &niche_overlap_sch_obs4$name!="Ungulate" &niche_overlap_sch_obs4$name!="Monkey"&niche_overlap_sch_obs4$name!="Elephant"&niche_overlap_sch_obs4$name!="Carnivore"&niche_overlap_sch_obs4$name!="Bird"] <- NA 
+
+niche_overlap_plot_obs <- ggplot(niche_overlap_sch_obs4, aes(Taxa2, name, fill= value)) + 
+  geom_tile()+
+  theme_classic()+
+  scale_fill_gradient(low = "grey80", high = "grey30", na.value="white", name="Niche Overlap")+
+  ylab("Taxa")+
+  xlab("Taxa")
+
+ggarrange( niche_overlap_plot_obs, niche_overlap_plot, labels=c("a", "b"))
+
+
+niche_overlap_plot_obs2 <- ggplot(niche_overlap_sch_obs4, aes(Taxa2, name, fill= value)) + 
+  geom_tile()+
+  theme_classic()+
+  scale_fill_viridis(na.value = "white", name="Niche Overlap", direction = -1, limits=c(0.08,0.88))+
+  ylab("Taxa")+
+  xlab("Taxa")
+
+niche_overlap_plot2 <- ggplot(niche_overlap_sch4, aes(Taxa2, name, fill= value)) + 
+  geom_tile()+
+  scale_fill_viridis(na.value = "white", name="Niche Overlap", direction = -1, limits=c(0.08,0.88))+
+  ylab("Taxa")+
+  xlab("Taxa")+
+  theme_classic()
+
+ggarrange(niche_overlap_plot_obs2, niche_overlap_plot2, labels=c("a", "b"), common.legend = TRUE)
+
+```
+
+```{r Plot the map}
+
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggspatial) 
+
+gabon <- ne_countries(scale = "medium", country = "Gabon", returnclass = "sf")
+plots <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Data/model-data.csv")
+
+plots_sf <- st_as_sf(plots, coords = c("Longitude", "Latitude"), crs = 4326)
+
+# Plot Gabon map with points
+gabon_agb_map <- ggplot() +
+geom_sf(data = gabon, fill = "grey90", color = "black") +
+geom_sf(data = plots_sf, aes(size = meanAGB), shape = 21,         
+fill = "skyblue", color = "black", stroke = 0.7, alpha =0.5) +
+theme_minimal() +
+theme_void()+
+labs(size = "Plot AGB (Mg/ha)")+
+annotation_scale(location = "br", width_hint = 0.2)
+
+ggsave(
+  filename = "gabon_agb_map.pdf",
+  plot = gabon_agb_map,
+  width = 8,
+  height = 6,
+  units = "in",
+  dpi = 1000
+)
+
+  
+```
+
+```{r Plotting Supplementary Figures Describing Frugivore Interactions}
+
+data_imputed <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Data/tdat_frug2_imputedB4.csv")
+animal_taxa <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Data/animal_taxa.csv")
+animal_taxa[124,] <- c("124", "Tragelaphus_eurycerus", "Bovidae", "Ungulate")
+
+data_imputed2 <- data_imputed %>% select(Atimastillas_flavigula:Tragelaphus_eurycerus)
+
+animal_species <- colnames(data_imputed2)
+
+filtered_df <- animal_taxa[animal_taxa$Species %in% animal_species, ]
+
+filtered_df$Taxa[filtered_df$Taxa=="Apes"] <- "Ape"
+filtered_df$Taxa[filtered_df$Taxa=="Bats"] <- "Bat"
+filtered_df$Taxa[filtered_df$Taxa=="Monkeys"] <- "Monkey"
+
+filtered_df$Taxa <- factor(filtered_df$Taxa, levels = c("Bird", "Monkey", "Ungulate", "Bat", "Carnivore", "Ape", "Elephant"))
+
+ggplot(data = filtered_df, aes(x = Taxa)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 4) +
+  theme_classic()+
+  ylab("Number of Species")
+
+animal_taxa$name <- animal_taxa$Species
+
+
+data_imputed2 <- data_imputed %>% filter(Genus != "Na", DispersedBinary !=0) %>% select(-X, -DispoCode, -Genus, -Famille, -meanWD, -H, -D, -AGB, -DispersedBinary, -Endangered, - NDispersed) %>% distinct()%>% pivot_longer(cols = Atimastillas_flavigula:Tragelaphus_eurycerus) %>% left_join(animal_taxa, by = "name") %>% select(Species, Espece, value, Taxa) %>% mutate(value_binary = value)
+
+data_imputed2$value_binary[data_imputed2$value_binary!=1] <- 0
+data_imputed2$value[data_imputed2$value<0.5] <- 0
+data_imputed2$value[data_imputed2$value>=0.5] <- 1
+
+data_imputed3 <- data_imputed2 %>% group_by(Taxa) %>% select(-Species)%>% distinct() %>% summarise(value = sum(value), value_binary = sum(value_binary))
+
+data_imputed4 <- data_imputed3 %>% pivot_longer(cols = value:value_binary, names_to = "Interaction")
+data_imputed4$Interaction[data_imputed4$Interaction=="value"] <-"Imputed, Prob. >=0.5" 
+data_imputed4$Interaction[data_imputed4$Interaction=="value_binary"] <- "Observed"
+
+data_imputed4$Taxa[data_imputed4$Taxa=="Apes"] <- "Ape"
+data_imputed4$Taxa[data_imputed4$Taxa=="Bats"] <- "Bat"
+data_imputed4$Taxa[data_imputed4$Taxa=="Monkeys"] <- "Monkey"
+
+data_imputed4$Taxa <- factor(data_imputed4$Taxa, levels = c("Monkey", "Ape", "Bird", "Elephant", "Ungulate", "Bat", "Carnivore"))
+
+ggplot(data = data_imputed4, aes(x = Taxa, y = value, color = Interaction, fill = Interaction)) +
+  geom_col(position = "dodge") + 
+  geom_text(aes(label = value), position = position_dodge(width = 0.9), vjust = -0.5, size = 4) + 
+  theme_classic() +
+  ylab("Number of Tree Fruit Species Consumed")+
+  scale_fill_manual(values = c("skyblue", "grey"))+
+  scale_color_manual(values = c("skyblue", "grey"))
+
+
+```
+
+
+

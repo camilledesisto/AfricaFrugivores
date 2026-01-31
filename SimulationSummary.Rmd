@@ -1,0 +1,1985 @@
+---
+title: "DefaunationSimulationTests"
+author: "Camille"
+date: "5/9/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+
+#Observed Network
+Plot_simulation_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/total/no_redundancy/output.csv")
+Plot_simulation <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/total/no_redundancy/output.csv")
+Plot_simulation_ele <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ele/redundancy/output.csv")
+Plot_simulation_ele_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ele/no_redundancy/output.csv")
+Plot_simulation_ceph <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ceph/redundancy/output.csv")
+Plot_simulation_ceph_nr <-read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ceph/no_redundancy/output.csv")
+Plot_simulation_monkey <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/monkey/redundancy/output.csv")
+Plot_simulation_monkey_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/monkey/no_redundancy/output.csv")
+Plot_simulation_ape <-read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ape/redundancy/output.csv")
+Plot_simulation_ape_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ape/no_redundancy/output.csv")
+Plot_simulation_bat <-read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/bat/redundancy/output.csv")
+Plot_simulation_bat_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/bat/no_redundancy/output.csv")
+Plot_simulation_bird <-read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/bird/redundancy/output.csv")
+Plot_simulation_bird_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/bird/no_redundancy/output.csv")
+Plot_simulation_carnivore <-read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/carnivore/redundancy/output.csv")
+Plot_simulation_carnivore_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/carnivore/no_redundancy/output.csv")
+Plot_simulation_endangered <-read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/Endangered/redundancy/output.csv")
+Plot_simulation_endangered_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/Endangered/no_redundancy/output.csv")
+
+
+#Imputed Network — expert scenario
+Plot_simulation_imputed_endangered <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_endangered.csv")
+Plot_simulation_imputed_endangered_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_endangered_nr.csv")
+
+Plot_simulation_imputed_ele <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_ele.csv")
+Plot_simulation_imputed_ele_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_ele_nr.csv")
+
+Plot_simulation_imputed_ape <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_ape.csv")
+Plot_simulation_imputed_ape_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_ape_nr.csv")
+
+Plot_simulation_imputed_monkey <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_monkey.csv")
+Plot_simulation_imputed_monkey_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_monkey_nr.csv")
+
+Plot_simulation_imputed_ceph <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_ceph.csv")
+Plot_simulation_imputed_ceph_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_ceph_nr.csv")
+
+Plot_simulation_imputed_bird <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bird.csv")
+Plot_simulation_imputed_bird_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bird_nr.csv")
+
+Plot_simulation_imputed_bat <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bat.csv")
+Plot_simulation_imputed_bat_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bat_nr.csv")
+
+Plot_simulation_imputed_carnivore <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_carnivore.csv")
+Plot_simulation_imputed_carnivore_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_carnivore_nr.csv")
+
+
+#Imputed Network Sensitivity
+Plot_simulation_imputed2_endangered <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_endangered_sensitivity.csv")
+
+Plot_simulation_imputed2_ele <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_ele_sensitivity.csv")
+
+Plot_simulation_imputed2_ape <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_ape_sensitivity.csv")
+
+Plot_simulation_imputed2_monkey <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_monkey_sensitivity.csv")
+
+Plot_simulation_imputed2_ceph <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_ceph_sensitivity.csv")
+
+Plot_simulation_imputed2_bird <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bird_sensitivity.csv")
+
+
+Plot_simulation_imputed2_bat <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bat_sensitivity.csv")
+
+Plot_simulation_imputed2_carnivore <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_carnivore_sensitivity.csv")
+
+
+Plot_simulation_imputed2_endangered_nr <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_endangered_nr_sensitivity.csv")
+
+Plot_simulation_imputed2_ele_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_ele_nr_sensitivity.csv")
+
+Plot_simulation_imputed2_ape_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_ape_nr_sensitivity.csv")
+
+Plot_simulation_imputed2_monkey_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_monkey_nr_sensitivity.csv")
+
+Plot_simulation_imputed2_ceph_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_ceph_nr_sensitivity.csv")
+
+Plot_simulation_imputed2_bird_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bird_nr_sensitivity.csv")
+
+Plot_simulation_imputed2_bat_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bat_nr_sensitivity.csv")
+
+Plot_simulation_imputed2_carnivore_nr <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_carnivore_nr_sensitivity.csv")
+
+
+```
+
+OBSERVED NETWORK
+
+```{r Total}
+
+#Redundancy
+
+for(i in 1:100){
+  # Sample one observation per group
+  Plot_simulation2 <- Plot_simulation_nr %>%
+    group_by(Plot, PercentRemoved) %>%
+    slice_sample(n = 1)
+
+  # Summarize data and calculate statistics
+  Plot_simulation3 <- Plot_simulation2 %>%
+    group_by(PercentRemoved) %>%
+    summarise(
+      mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+      sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+      nAGB_Change = n(),  # Should work fine in summarise()
+      .groups = "drop"
+    ) %>%
+    mutate(
+      seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+      lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+      upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change
+    )
+
+  # Append to the output dataframe
+  Plot_simulation_output <- bind_rows(Plot_simulation_output, Plot_simulation3)
+}
+
+Plot_simulation_output2 <- Plot_simulation_output %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation25 <- t.test(Plot_simulation_output2[Plot_simulation_output2$PercentRemoved==25,])
+Plot_simulation50 <-t.test(Plot_simulation_output2[Plot_simulation_output2$PercentRemoved==50,])
+Plot_simulation100 <-t.test(Plot_simulation_output2[Plot_simulation_output2$PercentRemoved==100,])
+
+Plot_simulation_CI <- c(Plot_simulation25$estimate, Plot_simulation25$conf.int[1], Plot_simulation25$conf.int[2], 
+                        Plot_simulation50$estimate, Plot_simulation50$conf.int[1], Plot_simulation50$conf.int[2], 
+                        Plot_simulation100$estimate, Plot_simulation100$conf.int[1], Plot_simulation100$conf.int[2])
+
+
+#No Redundancy
+
+Plot_simulation_output_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation2_nr <- Plot_simulation_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation3_nr <- Plot_simulation2_nr %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_nr <- rbind(Plot_simulation_output_nr,Plot_simulation3_nr)
+
+}
+
+Plot_simulation_output2_nr <- Plot_simulation_output_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation25_nr <- t.test(Plot_simulation_output2_nr[Plot_simulation_output2_nr$PercentRemoved==25,])
+Plot_simulation50_nr <-t.test(Plot_simulation_output2_nr[Plot_simulation_output2_nr$PercentRemoved==50,])
+Plot_simulation100_nr <-t.test(Plot_simulation_output2_nr[Plot_simulation_output2_nr$PercentRemoved==100,])
+
+Plot_simulation_CI_nr <- c(Plot_simulation25_nr$estimate, Plot_simulation25_nr$conf.int[1], Plot_simulation25_nr$conf.int[2], 
+                        Plot_simulation50_nr$estimate, Plot_simulation50_nr$conf.int[1], Plot_simulation50_nr$conf.int[2], 
+                        Plot_simulation100_nr$estimate, Plot_simulation100_nr$conf.int[1], Plot_simulation100_nr$conf.int[2])
+
+```
+
+```{r Elephant}
+
+#Redundancy
+
+Plot_simulation_output_ele <- NULL
+
+for(i in 1:100){
+  Plot_simulation_ele2 <- Plot_simulation_ele %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_ele3 <- Plot_simulation_ele2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_ele <- rbind(Plot_simulation_output_ele,Plot_simulation_ele3)
+
+}
+
+Plot_simulation_output_ele2 <- Plot_simulation_output_ele %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_ele25 <- t.test(Plot_simulation_output_ele2[Plot_simulation_output_ele2$PercentRemoved==25,])
+Plot_simulation_ele50 <-t.test(Plot_simulation_output_ele2[Plot_simulation_output_ele2$PercentRemoved==50,])
+Plot_simulation_ele100 <-t.test(Plot_simulation_output_ele2[Plot_simulation_output_ele2$PercentRemoved==100,])
+
+Plot_simulation_ele_CI <- c(Plot_simulation_ele25$estimate, Plot_simulation_ele25$conf.int[1], Plot_simulation_ele25$conf.int[2], 
+                        Plot_simulation_ele50$estimate, Plot_simulation_ele50$conf.int[1], Plot_simulation_ele50$conf.int[2], 
+                        Plot_simulation_ele100$estimate, Plot_simulation_ele100$conf.int[1], Plot_simulation_ele100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_output_ele_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_ele_nr2 <- Plot_simulation_ele_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_ele_nr3 <- Plot_simulation_ele_nr2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_ele_nr <- rbind(Plot_simulation_output_ele_nr,Plot_simulation_ele_nr3)
+
+}
+
+Plot_simulation_output_ele_nr2 <- Plot_simulation_output_ele_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_ele_nr25 <- t.test(Plot_simulation_output_ele_nr2[Plot_simulation_output_ele_nr2$PercentRemoved==25,])
+Plot_simulation_ele_nr50 <-t.test(Plot_simulation_output_ele_nr2[Plot_simulation_output_ele_nr2$PercentRemoved==50,])
+Plot_simulation_ele_nr100 <-t.test(Plot_simulation_output_ele_nr2[Plot_simulation_output_ele_nr2$PercentRemoved==100,])
+
+Plot_simulation_ele_nr_CI <- c(Plot_simulation_ele_nr25$estimate, Plot_simulation_ele_nr25$conf.int[1], Plot_simulation_ele_nr25$conf.int[2], 
+                        Plot_simulation_ele_nr50$estimate, Plot_simulation_ele_nr50$conf.int[1], Plot_simulation_ele_nr50$conf.int[2], 
+                        Plot_simulation_ele_nr100$estimate, Plot_simulation_ele_nr100$conf.int[1], Plot_simulation_ele_nr100$conf.int[2])
+
+```
+
+```{r ape}
+#Redundancy
+
+Plot_simulation_output_ape <- NULL
+
+for(i in 1:100){
+  Plot_simulation_ape2 <- Plot_simulation_ape %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_ape3 <- Plot_simulation_ape2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_ape <- rbind(Plot_simulation_output_ape,Plot_simulation_ape3)
+
+}
+
+Plot_simulation_output_ape2 <- Plot_simulation_output_ape %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_ape25 <- t.test(Plot_simulation_output_ape2[Plot_simulation_output_ape2$PercentRemoved==25,])
+Plot_simulation_ape50 <-t.test(Plot_simulation_output_ape2[Plot_simulation_output_ape2$PercentRemoved==50,])
+Plot_simulation_ape100 <-t.test(Plot_simulation_output_ape2[Plot_simulation_output_ape2$PercentRemoved==100,])
+
+Plot_simulation_ape_CI <- c(Plot_simulation_ape25$estimate, Plot_simulation_ape25$conf.int[1], Plot_simulation_ape25$conf.int[2], 
+                        Plot_simulation_ape50$estimate, Plot_simulation_ape50$conf.int[1], Plot_simulation_ape50$conf.int[2], 
+                        Plot_simulation_ape100$estimate, Plot_simulation_ape100$conf.int[1], Plot_simulation_ape100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_output_ape_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_ape_nr2 <- Plot_simulation_ape_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_ape_nr3 <- Plot_simulation_ape_nr2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_ape_nr <- rbind(Plot_simulation_output_ape_nr,Plot_simulation_ape_nr3)
+
+}
+
+Plot_simulation_output_ape_nr2 <- Plot_simulation_output_ape_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_ape_nr25 <- t.test(Plot_simulation_output_ape_nr2[Plot_simulation_output_ape_nr2$PercentRemoved==25,])
+Plot_simulation_ape_nr50 <-t.test(Plot_simulation_output_ape_nr2[Plot_simulation_output_ape_nr2$PercentRemoved==50,])
+Plot_simulation_ape_nr100 <-t.test(Plot_simulation_output_ape_nr2[Plot_simulation_output_ape_nr2$PercentRemoved==100,])
+
+Plot_simulation_ape_nr_CI <- c(Plot_simulation_ape_nr25$estimate, Plot_simulation_ape_nr25$conf.int[1], Plot_simulation_ape_nr25$conf.int[2], 
+                        Plot_simulation_ape_nr50$estimate, Plot_simulation_ape_nr50$conf.int[1], Plot_simulation_ape_nr50$conf.int[2], 
+                        Plot_simulation_ape_nr100$estimate, Plot_simulation_ape_nr100$conf.int[1], Plot_simulation_ape_nr100$conf.int[2])
+
+```
+
+```{r ceph}
+#Redundancy
+
+Plot_simulation_output_ceph <- NULL
+
+for(i in 1:100){
+  Plot_simulation_ceph2 <- Plot_simulation_ceph %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_ceph3 <- Plot_simulation_ceph2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_ceph <- rbind(Plot_simulation_output_ceph,Plot_simulation_ceph3)
+
+}
+
+Plot_simulation_output_ceph2 <- Plot_simulation_output_ceph %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_ceph25 <- t.test(Plot_simulation_output_ceph2[Plot_simulation_output_ceph2$PercentRemoved==25,])
+Plot_simulation_ceph50 <-t.test(Plot_simulation_output_ceph2[Plot_simulation_output_ceph2$PercentRemoved==50,])
+Plot_simulation_ceph100 <-t.test(Plot_simulation_output_ceph2[Plot_simulation_output_ceph2$PercentRemoved==100,])
+
+Plot_simulation_ceph_CI <- c(Plot_simulation_ceph25$estimate, Plot_simulation_ceph25$conf.int[1], Plot_simulation_ceph25$conf.int[2], 
+                        Plot_simulation_ceph50$estimate, Plot_simulation_ceph50$conf.int[1], Plot_simulation_ceph50$conf.int[2], 
+                        Plot_simulation_ceph100$estimate, Plot_simulation_ceph100$conf.int[1], Plot_simulation_ceph100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_output_ceph_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_ceph_nr2 <- Plot_simulation_ceph_nr %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_ceph_nr3 <- Plot_simulation_ceph_nr2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_ceph_nr <- rbind(Plot_simulation_output_ceph_nr,Plot_simulation_ceph_nr3)
+
+}
+
+Plot_simulation_output_ceph_nr2 <- Plot_simulation_output_ceph_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_ceph_nr25 <- t.test(Plot_simulation_output_ceph_nr2[Plot_simulation_output_ceph_nr2$PercentRemoved==25,])
+Plot_simulation_ceph_nr50 <-t.test(Plot_simulation_output_ceph_nr2[Plot_simulation_output_ceph_nr2$PercentRemoved==50,])
+Plot_simulation_ceph_nr100 <-t.test(Plot_simulation_output_ceph_nr2[Plot_simulation_output_ceph_nr2$PercentRemoved==100,])
+
+Plot_simulation_ceph_nr_CI <- c(Plot_simulation_ceph_nr25$estimate, Plot_simulation_ceph_nr25$conf.int[1], Plot_simulation_ceph_nr25$conf.int[2], 
+                        Plot_simulation_ceph_nr50$estimate, Plot_simulation_ceph_nr50$conf.int[1], Plot_simulation_ceph_nr50$conf.int[2], 
+                        Plot_simulation_ceph_nr100$estimate, Plot_simulation_ceph_nr100$conf.int[1], Plot_simulation_ceph_nr100$conf.int[2])
+
+```
+
+```{r bird}
+#Redundancy
+
+Plot_simulation_output_bird <- NULL
+
+for(i in 1:100){
+  Plot_simulation_bird2 <- Plot_simulation_bird %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_bird3 <- Plot_simulation_bird2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_bird <- rbind(Plot_simulation_output_bird,Plot_simulation_bird3)
+
+}
+
+Plot_simulation_output_bird2 <- Plot_simulation_output_bird %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_bird25 <- t.test(Plot_simulation_output_bird2[Plot_simulation_output_bird2$PercentRemoved==25,])
+Plot_simulation_bird50 <-t.test(Plot_simulation_output_bird2[Plot_simulation_output_bird2$PercentRemoved==50,])
+Plot_simulation_bird100 <-t.test(Plot_simulation_output_bird2[Plot_simulation_output_bird2$PercentRemoved==100,])
+
+Plot_simulation_bird_CI <- c(Plot_simulation_bird25$estimate, Plot_simulation_bird25$conf.int[1], Plot_simulation_bird25$conf.int[2], 
+                        Plot_simulation_bird50$estimate, Plot_simulation_bird50$conf.int[1], Plot_simulation_bird50$conf.int[2], 
+                        Plot_simulation_bird100$estimate, Plot_simulation_bird100$conf.int[1], Plot_simulation_bird100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_output_bird_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_bird_nr2 <- Plot_simulation_bird_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_bird_nr3 <- Plot_simulation_bird_nr2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_bird_nr <- rbind(Plot_simulation_output_bird_nr,Plot_simulation_bird_nr3)
+
+}
+
+Plot_simulation_output_bird_nr2 <- Plot_simulation_output_bird_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_bird_nr25 <- t.test(Plot_simulation_output_bird_nr2[Plot_simulation_output_bird_nr2$PercentRemoved==25,])
+Plot_simulation_bird_nr50 <-t.test(Plot_simulation_output_bird_nr2[Plot_simulation_output_bird_nr2$PercentRemoved==50,])
+Plot_simulation_bird_nr100 <-t.test(Plot_simulation_output_bird_nr2[Plot_simulation_output_bird_nr2$PercentRemoved==100,])
+
+Plot_simulation_bird_nr_CI <- c(Plot_simulation_bird_nr25$estimate, Plot_simulation_bird_nr25$conf.int[1], Plot_simulation_bird_nr25$conf.int[2], 
+                        Plot_simulation_bird_nr50$estimate, Plot_simulation_bird_nr50$conf.int[1], Plot_simulation_bird_nr50$conf.int[2], 
+                        Plot_simulation_bird_nr100$estimate, Plot_simulation_bird_nr100$conf.int[1], Plot_simulation_bird_nr100$conf.int[2])
+
+```
+
+```{r Monkey}
+#Redundancy
+
+Plot_simulation_output_monkey <- NULL
+
+for(i in 1:100){
+  Plot_simulation_monkey2 <- Plot_simulation_monkey %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_monkey3 <- Plot_simulation_monkey2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_monkey <- rbind(Plot_simulation_output_monkey,Plot_simulation_monkey3)
+
+}
+
+Plot_simulation_output_monkey2 <- Plot_simulation_output_monkey %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_monkey25 <- t.test(Plot_simulation_output_monkey2[Plot_simulation_output_monkey2$PercentRemoved==25,])
+Plot_simulation_monkey50 <-t.test(Plot_simulation_output_monkey2[Plot_simulation_output_monkey2$PercentRemoved==50,])
+Plot_simulation_monkey100 <-t.test(Plot_simulation_output_monkey2[Plot_simulation_output_monkey2$PercentRemoved==100,])
+
+Plot_simulation_monkey_CI <- c(Plot_simulation_monkey25$estimate, Plot_simulation_monkey25$conf.int[1], Plot_simulation_monkey25$conf.int[2], 
+                        Plot_simulation_monkey50$estimate, Plot_simulation_monkey50$conf.int[1], Plot_simulation_monkey50$conf.int[2], 
+                        Plot_simulation_monkey100$estimate, Plot_simulation_monkey100$conf.int[1], Plot_simulation_monkey100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_output_monkey_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_monkey_nr2 <- Plot_simulation_monkey_nr %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_monkey_nr3 <- Plot_simulation_monkey_nr2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_monkey_nr <- rbind(Plot_simulation_output_monkey_nr,Plot_simulation_monkey_nr3)
+
+}
+
+Plot_simulation_output_monkey_nr2 <- Plot_simulation_output_monkey_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_monkey_nr25 <- t.test(Plot_simulation_output_monkey_nr2[Plot_simulation_output_monkey_nr2$PercentRemoved==25,])
+Plot_simulation_monkey_nr50 <-t.test(Plot_simulation_output_monkey_nr2[Plot_simulation_output_monkey_nr2$PercentRemoved==50,])
+Plot_simulation_monkey_nr100 <-t.test(Plot_simulation_output_monkey_nr2[Plot_simulation_output_monkey_nr2$PercentRemoved==100,])
+
+Plot_simulation_monkey_nr_CI <- c(Plot_simulation_monkey_nr25$estimate, Plot_simulation_monkey_nr25$conf.int[1], Plot_simulation_monkey_nr25$conf.int[2], 
+                        Plot_simulation_monkey_nr50$estimate, Plot_simulation_monkey_nr50$conf.int[1], Plot_simulation_monkey_nr50$conf.int[2], 
+                        Plot_simulation_monkey_nr100$estimate, Plot_simulation_monkey_nr100$conf.int[1], Plot_simulation_monkey_nr100$conf.int[2])
+
+```
+
+```{r bat}
+#Redundancy
+
+Plot_simulation_output_bat <- NULL
+
+for(i in 1:100){
+  Plot_simulation_bat2 <- Plot_simulation_bat %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_bat3 <- Plot_simulation_bat2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_bat <- rbind(Plot_simulation_output_bat,Plot_simulation_bat3)
+
+}
+
+Plot_simulation_output_bat2 <- Plot_simulation_output_bat %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_bat25 <- t.test(Plot_simulation_output_bat2[Plot_simulation_output_bat2$PercentRemoved==25,])
+Plot_simulation_bat50 <-t.test(Plot_simulation_output_bat2[Plot_simulation_output_bat2$PercentRemoved==50,])
+Plot_simulation_bat100 <-t.test(Plot_simulation_output_bat2[Plot_simulation_output_bat2$PercentRemoved==100,])
+
+Plot_simulation_bat_CI <- c(Plot_simulation_bat25$estimate, Plot_simulation_bat25$conf.int[1], Plot_simulation_bat25$conf.int[2], 
+                        Plot_simulation_bat50$estimate, Plot_simulation_bat50$conf.int[1], Plot_simulation_bat50$conf.int[2], 
+                        Plot_simulation_bat100$estimate, Plot_simulation_bat100$conf.int[1], Plot_simulation_bat100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_output_bat_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_bat_nr2 <- Plot_simulation_bat_nr %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_bat_nr3 <- Plot_simulation_bat_nr2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_bat_nr <- rbind(Plot_simulation_output_bat_nr,Plot_simulation_bat_nr3)
+
+}
+
+Plot_simulation_output_bat_nr2 <- Plot_simulation_output_bat_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_bat_nr25 <- t.test(Plot_simulation_output_bat_nr2[Plot_simulation_output_bat_nr2$PercentRemoved==25,])
+Plot_simulation_bat_nr50 <-t.test(Plot_simulation_output_bat_nr2[Plot_simulation_output_bat_nr2$PercentRemoved==50,])
+Plot_simulation_bat_nr100 <-t.test(Plot_simulation_output_bat_nr2[Plot_simulation_output_bat_nr2$PercentRemoved==100,])
+
+Plot_simulation_bat_nr_CI <- c(Plot_simulation_bat_nr25$estimate, Plot_simulation_bat_nr25$conf.int[1], Plot_simulation_bat_nr25$conf.int[2], 
+                        Plot_simulation_bat_nr50$estimate, Plot_simulation_bat_nr50$conf.int[1], Plot_simulation_bat_nr50$conf.int[2], 
+                        Plot_simulation_bat_nr100$estimate, Plot_simulation_bat_nr100$conf.int[1], Plot_simulation_bat_nr100$conf.int[2])
+
+```
+
+```{r carnivore}
+#Redundancy
+
+Plot_simulation_output_carnivore <- NULL
+
+for(i in 1:100){
+  Plot_simulation_carnivore2 <- Plot_simulation_carnivore %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_carnivore3 <- Plot_simulation_carnivore2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_carnivore <- rbind(Plot_simulation_output_carnivore,Plot_simulation_carnivore3)
+
+}
+
+Plot_simulation_output_carnivore2 <- Plot_simulation_output_carnivore %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_carnivore25 <- t.test(Plot_simulation_output_carnivore2[Plot_simulation_output_carnivore2$PercentRemoved==25,])
+Plot_simulation_carnivore50 <-t.test(Plot_simulation_output_carnivore2[Plot_simulation_output_carnivore2$PercentRemoved==50,])
+Plot_simulation_carnivore100 <-t.test(Plot_simulation_output_carnivore2[Plot_simulation_output_carnivore2$PercentRemoved==100,])
+
+Plot_simulation_carnivore_CI <- c(Plot_simulation_carnivore25$estimate, Plot_simulation_carnivore25$conf.int[1], Plot_simulation_carnivore25$conf.int[2], 
+                        Plot_simulation_carnivore50$estimate, Plot_simulation_carnivore50$conf.int[1], Plot_simulation_carnivore50$conf.int[2], 
+                        Plot_simulation_carnivore100$estimate, Plot_simulation_carnivore100$conf.int[1], Plot_simulation_carnivore100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_output_carnivore_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_carnivore_nr2 <- Plot_simulation_carnivore_nr %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_carnivore_nr3 <- Plot_simulation_carnivore_nr2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_carnivore_nr <- rbind(Plot_simulation_output_carnivore_nr,Plot_simulation_carnivore_nr3)
+
+}
+
+Plot_simulation_output_carnivore_nr2 <- Plot_simulation_output_carnivore_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_carnivore_nr25 <- t.test(Plot_simulation_output_carnivore_nr2[Plot_simulation_output_carnivore_nr2$PercentRemoved==25,])
+Plot_simulation_carnivore_nr50 <-t.test(Plot_simulation_output_carnivore_nr2[Plot_simulation_output_carnivore_nr2$PercentRemoved==50,])
+Plot_simulation_carnivore_nr100 <-t.test(Plot_simulation_output_carnivore_nr2[Plot_simulation_output_carnivore_nr2$PercentRemoved==100,])
+
+Plot_simulation_carnivore_nr_CI <- c(Plot_simulation_carnivore_nr25$estimate, Plot_simulation_carnivore_nr25$conf.int[1], Plot_simulation_carnivore_nr25$conf.int[2], 
+                        Plot_simulation_carnivore_nr50$estimate, Plot_simulation_carnivore_nr50$conf.int[1], Plot_simulation_carnivore_nr50$conf.int[2], 
+                        Plot_simulation_carnivore_nr100$estimate, Plot_simulation_carnivore_nr100$conf.int[1], Plot_simulation_carnivore_nr100$conf.int[2])
+
+```
+
+```{r endangered}
+#Redundancy
+
+Plot_simulation_output_endangered <- NULL
+
+for(i in 1:100){
+  Plot_simulation_endangered2 <- Plot_simulation_endangered %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_endangered3 <- Plot_simulation_endangered2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_endangered <- rbind(Plot_simulation_output_endangered,Plot_simulation_endangered3)
+
+}
+
+Plot_simulation_output_endangered2 <- Plot_simulation_output_endangered %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_endangered25 <- t.test(Plot_simulation_output_endangered2[Plot_simulation_output_endangered2$PercentRemoved==25,])
+Plot_simulation_endangered50 <-t.test(Plot_simulation_output_endangered2[Plot_simulation_output_endangered2$PercentRemoved==50,])
+Plot_simulation_endangered100 <-t.test(Plot_simulation_output_endangered2[Plot_simulation_output_endangered2$PercentRemoved==100,])
+
+Plot_simulation_endangered_CI <- c(Plot_simulation_endangered25$estimate, Plot_simulation_endangered25$conf.int[1], Plot_simulation_endangered25$conf.int[2], 
+                        Plot_simulation_endangered50$estimate, Plot_simulation_endangered50$conf.int[1], Plot_simulation_endangered50$conf.int[2], 
+                        Plot_simulation_endangered100$estimate, Plot_simulation_endangered100$conf.int[1], Plot_simulation_endangered100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_output_endangered_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_endangered_nr2 <- Plot_simulation_endangered_nr %>% select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_endangered_nr3 <- Plot_simulation_endangered_nr2 %>% group_by(PercentRemoved) %>% 
+  summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_output_endangered_nr <- rbind(Plot_simulation_output_endangered_nr,Plot_simulation_endangered_nr3)
+
+}
+
+Plot_simulation_output_endangered_nr2 <- Plot_simulation_output_endangered_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_endangered_nr25 <- t.test(Plot_simulation_output_endangered_nr2[Plot_simulation_output_endangered_nr2$PercentRemoved==25,])
+Plot_simulation_endangered_nr50 <-t.test(Plot_simulation_output_endangered_nr2[Plot_simulation_output_endangered_nr2$PercentRemoved==50,])
+Plot_simulation_endangered_nr100 <-t.test(Plot_simulation_output_endangered_nr2[Plot_simulation_output_endangered_nr2$PercentRemoved==100,])
+
+Plot_simulation_endangered_nr_CI <- c(Plot_simulation_endangered_nr25$estimate, Plot_simulation_endangered_nr25$conf.int[1], Plot_simulation_endangered_nr25$conf.int[2], 
+                        Plot_simulation_endangered_nr50$estimate, Plot_simulation_endangered_nr50$conf.int[1], Plot_simulation_endangered_nr50$conf.int[2], 
+                        Plot_simulation_endangered_nr100$estimate, Plot_simulation_endangered_nr100$conf.int[1], Plot_simulation_endangered_nr100$conf.int[2])
+
+```
+
+
+IMPUTED NETWORK -- Expert B
+
+```{r Elephant}
+
+#Redundancy
+
+Plot_simulation_imputed_output_ele <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_ele2 <- Plot_simulation_imputed_ele %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_ele3 <- Plot_simulation_imputed_ele2 %>% dplyr::group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_ele <- rbind(Plot_simulation_imputed_output_ele,Plot_simulation_imputed_ele3)
+
+}
+
+Plot_simulation_imputed_output_ele2 <- Plot_simulation_imputed_output_ele %>% dplyr::select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_ele25 <- t.test(Plot_simulation_imputed_output_ele2[Plot_simulation_imputed_output_ele2$PercentRemoved==25,])
+Plot_simulation_imputed_ele50 <-t.test(Plot_simulation_imputed_output_ele2[Plot_simulation_imputed_output_ele2$PercentRemoved==50,])
+Plot_simulation_imputed_ele100 <-t.test(Plot_simulation_imputed_output_ele2[Plot_simulation_imputed_output_ele2$PercentRemoved==100,])
+
+Plot_simulation_imputed_ele_CI <- c(Plot_simulation_imputed_ele25$estimate, Plot_simulation_imputed_ele25$conf.int[1], Plot_simulation_imputed_ele25$conf.int[2], 
+                        Plot_simulation_imputed_ele50$estimate, Plot_simulation_imputed_ele50$conf.int[1], Plot_simulation_imputed_ele50$conf.int[2], 
+                        Plot_simulation_imputed_ele100$estimate, Plot_simulation_imputed_ele100$conf.int[1], Plot_simulation_imputed_ele100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_imputed_output_ele_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_ele_nr2 <- Plot_simulation_imputed_ele_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_ele_nr3 <- Plot_simulation_imputed_ele_nr2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_ele_nr <- rbind(Plot_simulation_imputed_output_ele_nr,Plot_simulation_imputed_ele_nr3)
+
+}
+
+Plot_simulation_imputed_output_ele_nr2 <- Plot_simulation_imputed_output_ele_nr %>% dplyr::select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_ele_nr25 <- t.test(Plot_simulation_imputed_output_ele_nr2[Plot_simulation_imputed_output_ele_nr2$PercentRemoved==25,])
+Plot_simulation_imputed_ele_nr50 <-t.test(Plot_simulation_imputed_output_ele_nr2[Plot_simulation_imputed_output_ele_nr2$PercentRemoved==50,])
+Plot_simulation_imputed_ele_nr100 <-t.test(Plot_simulation_imputed_output_ele_nr2[Plot_simulation_imputed_output_ele_nr2$PercentRemoved==100,])
+
+Plot_simulation_imputed_ele_nr_CI <- c(Plot_simulation_imputed_ele_nr25$estimate, Plot_simulation_imputed_ele_nr25$conf.int[1], Plot_simulation_imputed_ele_nr25$conf.int[2], 
+                        Plot_simulation_imputed_ele_nr50$estimate, Plot_simulation_imputed_ele_nr50$conf.int[1], Plot_simulation_imputed_ele_nr50$conf.int[2], 
+                        Plot_simulation_imputed_ele_nr100$estimate, Plot_simulation_imputed_ele_nr100$conf.int[1], Plot_simulation_imputed_ele_nr100$conf.int[2])
+
+```
+
+```{r ape}
+#Redundancy
+
+Plot_simulation_imputed_output_ape <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_ape2 <- Plot_simulation_imputed_ape %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_ape3 <- Plot_simulation_imputed_ape2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+ dplyr:: mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_ape <- rbind(Plot_simulation_imputed_output_ape,Plot_simulation_imputed_ape3)
+
+}
+
+Plot_simulation_imputed_output_ape2 <- Plot_simulation_imputed_output_ape %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_ape25 <- t.test(Plot_simulation_imputed_output_ape2[Plot_simulation_imputed_output_ape2$PercentRemoved==25,])
+Plot_simulation_imputed_ape50 <-t.test(Plot_simulation_imputed_output_ape2[Plot_simulation_imputed_output_ape2$PercentRemoved==50,])
+Plot_simulation_imputed_ape100 <-t.test(Plot_simulation_imputed_output_ape2[Plot_simulation_imputed_output_ape2$PercentRemoved==100,])
+
+Plot_simulation_imputed_ape_CI <- c(Plot_simulation_imputed_ape25$estimate, Plot_simulation_imputed_ape25$conf.int[1], Plot_simulation_imputed_ape25$conf.int[2], 
+                        Plot_simulation_imputed_ape50$estimate, Plot_simulation_imputed_ape50$conf.int[1], Plot_simulation_imputed_ape50$conf.int[2], 
+                        Plot_simulation_imputed_ape100$estimate, Plot_simulation_imputed_ape100$conf.int[1], Plot_simulation_imputed_ape100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_imputed_output_ape_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_ape_nr2 <- Plot_simulation_imputed_ape_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_ape_nr3 <- Plot_simulation_imputed_ape_nr2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_ape_nr <- rbind(Plot_simulation_imputed_output_ape_nr,Plot_simulation_imputed_ape_nr3)
+
+}
+
+Plot_simulation_imputed_output_ape_nr2 <- Plot_simulation_imputed_output_ape_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_ape_nr25 <- t.test(Plot_simulation_imputed_output_ape_nr2[Plot_simulation_imputed_output_ape_nr2$PercentRemoved==25,])
+Plot_simulation_imputed_ape_nr50 <-t.test(Plot_simulation_imputed_output_ape_nr2[Plot_simulation_imputed_output_ape_nr2$PercentRemoved==50,])
+Plot_simulation_imputed_ape_nr100 <-t.test(Plot_simulation_imputed_output_ape_nr2[Plot_simulation_imputed_output_ape_nr2$PercentRemoved==100,])
+
+Plot_simulation_imputed_ape_nr_CI <- c(Plot_simulation_imputed_ape_nr25$estimate, Plot_simulation_imputed_ape_nr25$conf.int[1], Plot_simulation_imputed_ape_nr25$conf.int[2], 
+                        Plot_simulation_imputed_ape_nr50$estimate, Plot_simulation_imputed_ape_nr50$conf.int[1], Plot_simulation_imputed_ape_nr50$conf.int[2], 
+                        Plot_simulation_imputed_ape_nr100$estimate, Plot_simulation_imputed_ape_nr100$conf.int[1], Plot_simulation_imputed_ape_nr100$conf.int[2])
+
+```
+
+```{r Monkey}
+#Redundancy
+
+Plot_simulation_imputed_output_monkey <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_monkey2 <- Plot_simulation_imputed_monkey %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_monkey3 <- Plot_simulation_imputed_monkey2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+ dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_monkey <- rbind(Plot_simulation_imputed_output_monkey,Plot_simulation_imputed_monkey3)
+
+}
+
+Plot_simulation_imputed_output_monkey2 <- Plot_simulation_imputed_output_monkey %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_monkey25 <- t.test(Plot_simulation_imputed_output_monkey2[Plot_simulation_imputed_output_monkey2$PercentRemoved==25,])
+Plot_simulation_imputed_monkey50 <-t.test(Plot_simulation_imputed_output_monkey2[Plot_simulation_imputed_output_monkey2$PercentRemoved==50,])
+Plot_simulation_imputed_monkey100 <-t.test(Plot_simulation_imputed_output_monkey2[Plot_simulation_imputed_output_monkey2$PercentRemoved==100,])
+
+Plot_simulation_imputed_monkey_CI <- c(Plot_simulation_imputed_monkey25$estimate, Plot_simulation_imputed_monkey25$conf.int[1], Plot_simulation_imputed_monkey25$conf.int[2], 
+                        Plot_simulation_imputed_monkey50$estimate, Plot_simulation_imputed_monkey50$conf.int[1], Plot_simulation_imputed_monkey50$conf.int[2], 
+                        Plot_simulation_imputed_monkey100$estimate, Plot_simulation_imputed_monkey100$conf.int[1], Plot_simulation_imputed_monkey100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_imputed_output_monkey_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_monkey_nr2 <- Plot_simulation_imputed_monkey_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_monkey_nr3 <- Plot_simulation_imputed_monkey_nr2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_monkey_nr <- rbind(Plot_simulation_imputed_output_monkey_nr,Plot_simulation_imputed_monkey_nr3)
+
+}
+
+Plot_simulation_imputed_output_monkey_nr2 <- Plot_simulation_imputed_output_monkey_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_monkey_nr25 <- t.test(Plot_simulation_imputed_output_monkey_nr2[Plot_simulation_imputed_output_monkey_nr2$PercentRemoved==25,])
+Plot_simulation_imputed_monkey_nr50 <-t.test(Plot_simulation_imputed_output_monkey_nr2[Plot_simulation_imputed_output_monkey_nr2$PercentRemoved==50,])
+Plot_simulation_imputed_monkey_nr100 <-t.test(Plot_simulation_imputed_output_monkey_nr2[Plot_simulation_imputed_output_monkey_nr2$PercentRemoved==100,])
+
+Plot_simulation_imputed_monkey_nr_CI <- c(Plot_simulation_imputed_monkey_nr25$estimate, Plot_simulation_imputed_monkey_nr25$conf.int[1], Plot_simulation_imputed_monkey_nr25$conf.int[2], 
+                        Plot_simulation_imputed_monkey_nr50$estimate, Plot_simulation_imputed_monkey_nr50$conf.int[1], Plot_simulation_imputed_monkey_nr50$conf.int[2], 
+                        Plot_simulation_imputed_monkey_nr100$estimate, Plot_simulation_imputed_monkey_nr100$conf.int[1], Plot_simulation_imputed_monkey_nr100$conf.int[2])
+
+```
+
+```{r bird}
+#Redundancy
+
+Plot_simulation_imputed_output_bird <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_bird2 <- Plot_simulation_imputed_bird %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_bird3 <- Plot_simulation_imputed_bird2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_bird <- rbind(Plot_simulation_imputed_output_bird,Plot_simulation_imputed_bird3)
+
+}
+
+Plot_simulation_imputed_output_bird2 <- Plot_simulation_imputed_output_bird %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_bird25 <- t.test(Plot_simulation_imputed_output_bird2[Plot_simulation_imputed_output_bird2$PercentRemoved==25,])
+Plot_simulation_imputed_bird50 <-t.test(Plot_simulation_imputed_output_bird2[Plot_simulation_imputed_output_bird2$PercentRemoved==50,])
+Plot_simulation_imputed_bird100 <-t.test(Plot_simulation_imputed_output_bird2[Plot_simulation_imputed_output_bird2$PercentRemoved==100,])
+
+Plot_simulation_imputed_bird_CI <- c(Plot_simulation_imputed_bird25$estimate, Plot_simulation_imputed_bird25$conf.int[1], Plot_simulation_imputed_bird25$conf.int[2], 
+                        Plot_simulation_imputed_bird50$estimate, Plot_simulation_imputed_bird50$conf.int[1], Plot_simulation_imputed_bird50$conf.int[2], 
+                        Plot_simulation_imputed_bird100$estimate, Plot_simulation_imputed_bird100$conf.int[1], Plot_simulation_imputed_bird100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_imputed_output_bird_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_bird_nr2 <- Plot_simulation_imputed_bird_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_bird_nr3 <- Plot_simulation_imputed_bird_nr2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_bird_nr <- rbind(Plot_simulation_imputed_output_bird_nr,Plot_simulation_imputed_bird_nr3)
+
+}
+
+Plot_simulation_imputed_output_bird_nr2 <- Plot_simulation_imputed_output_bird_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_bird_nr25 <- t.test(Plot_simulation_imputed_output_bird_nr2[Plot_simulation_imputed_output_bird_nr2$PercentRemoved==25,])
+Plot_simulation_imputed_bird_nr50 <-t.test(Plot_simulation_imputed_output_bird_nr2[Plot_simulation_imputed_output_bird_nr2$PercentRemoved==50,])
+Plot_simulation_imputed_bird_nr100 <-t.test(Plot_simulation_imputed_output_bird_nr2[Plot_simulation_imputed_output_bird_nr2$PercentRemoved==100,])
+
+Plot_simulation_imputed_bird_nr_CI <- c(Plot_simulation_imputed_bird_nr25$estimate, Plot_simulation_imputed_bird_nr25$conf.int[1], Plot_simulation_imputed_bird_nr25$conf.int[2], 
+                        Plot_simulation_imputed_bird_nr50$estimate, Plot_simulation_imputed_bird_nr50$conf.int[1], Plot_simulation_imputed_bird_nr50$conf.int[2], 
+                        Plot_simulation_imputed_bird_nr100$estimate, Plot_simulation_imputed_bird_nr100$conf.int[1], Plot_simulation_imputed_bird_nr100$conf.int[2])
+
+```
+
+```{r ceph}
+#Redundancy
+
+Plot_simulation_imputed_output_ceph <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_ceph2 <- Plot_simulation_imputed_ceph %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_ceph3 <- Plot_simulation_imputed_ceph2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_ceph <- rbind(Plot_simulation_imputed_output_ceph,Plot_simulation_imputed_ceph3)
+
+}
+
+Plot_simulation_imputed_output_ceph2 <- Plot_simulation_imputed_output_ceph %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_ceph25 <- t.test(Plot_simulation_imputed_output_ceph2[Plot_simulation_imputed_output_ceph2$PercentRemoved==25,])
+Plot_simulation_imputed_ceph50 <-t.test(Plot_simulation_imputed_output_ceph2[Plot_simulation_imputed_output_ceph2$PercentRemoved==50,])
+Plot_simulation_imputed_ceph100 <-t.test(Plot_simulation_imputed_output_ceph2[Plot_simulation_imputed_output_ceph2$PercentRemoved==100,])
+
+Plot_simulation_imputed_ceph_CI <- c(Plot_simulation_imputed_ceph25$estimate, Plot_simulation_imputed_ceph25$conf.int[1], Plot_simulation_imputed_ceph25$conf.int[2], 
+                        Plot_simulation_imputed_ceph50$estimate, Plot_simulation_imputed_ceph50$conf.int[1], Plot_simulation_imputed_ceph50$conf.int[2], 
+                        Plot_simulation_imputed_ceph100$estimate, Plot_simulation_imputed_ceph100$conf.int[1], Plot_simulation_imputed_ceph100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_imputed_output_ceph_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_ceph_nr2 <- Plot_simulation_imputed_ceph_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_ceph_nr3 <- Plot_simulation_imputed_ceph_nr2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_ceph_nr <- rbind(Plot_simulation_imputed_output_ceph_nr,Plot_simulation_imputed_ceph_nr3)
+
+}
+
+Plot_simulation_imputed_output_ceph_nr2 <- Plot_simulation_imputed_output_ceph_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_ceph_nr25 <- t.test(Plot_simulation_imputed_output_ceph_nr2[Plot_simulation_imputed_output_ceph_nr2$PercentRemoved==25,])
+Plot_simulation_imputed_ceph_nr50 <-t.test(Plot_simulation_imputed_output_ceph_nr2[Plot_simulation_imputed_output_ceph_nr2$PercentRemoved==50,])
+Plot_simulation_imputed_ceph_nr100 <-t.test(Plot_simulation_imputed_output_ceph_nr2[Plot_simulation_imputed_output_ceph_nr2$PercentRemoved==100,])
+
+Plot_simulation_imputed_ceph_nr_CI <- c(Plot_simulation_imputed_ceph_nr25$estimate, Plot_simulation_imputed_ceph_nr25$conf.int[1], Plot_simulation_imputed_ceph_nr25$conf.int[2], 
+                        Plot_simulation_imputed_ceph_nr50$estimate, Plot_simulation_imputed_ceph_nr50$conf.int[1], Plot_simulation_imputed_ceph_nr50$conf.int[2], 
+                        Plot_simulation_imputed_ceph_nr100$estimate, Plot_simulation_imputed_ceph_nr100$conf.int[1], Plot_simulation_imputed_ceph_nr100$conf.int[2])
+
+```
+
+```{r bat}
+#Redundancy
+
+Plot_simulation_imputed_output_bat <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_bat2 <- Plot_simulation_imputed_bat %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_bat3 <- Plot_simulation_imputed_bat2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_bat <- rbind(Plot_simulation_imputed_output_bat,Plot_simulation_imputed_bat3)
+
+}
+
+Plot_simulation_imputed_output_bat2 <- Plot_simulation_imputed_output_bat %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_bat25 <- t.test(Plot_simulation_imputed_output_bat2[Plot_simulation_imputed_output_bat2$PercentRemoved==25,])
+Plot_simulation_imputed_bat50 <-t.test(Plot_simulation_imputed_output_bat2[Plot_simulation_imputed_output_bat2$PercentRemoved==50,])
+Plot_simulation_imputed_bat100 <-t.test(Plot_simulation_imputed_output_bat2[Plot_simulation_imputed_output_bat2$PercentRemoved==100,])
+
+Plot_simulation_imputed_bat_CI <- c(Plot_simulation_imputed_bat25$estimate, Plot_simulation_imputed_bat25$conf.int[1], Plot_simulation_imputed_bat25$conf.int[2], 
+                        Plot_simulation_imputed_bat50$estimate, Plot_simulation_imputed_bat50$conf.int[1], Plot_simulation_imputed_bat50$conf.int[2], 
+                        Plot_simulation_imputed_bat100$estimate, Plot_simulation_imputed_bat100$conf.int[1], Plot_simulation_imputed_bat100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_imputed_output_bat_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_bat_nr2 <- Plot_simulation_imputed_bat_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_bat_nr3 <- Plot_simulation_imputed_bat_nr2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_bat_nr <- rbind(Plot_simulation_imputed_output_bat_nr,Plot_simulation_imputed_bat_nr3)
+
+}
+
+Plot_simulation_imputed_output_bat_nr2 <- Plot_simulation_imputed_output_bat_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_bat_nr25 <- t.test(Plot_simulation_imputed_output_bat_nr2[Plot_simulation_imputed_output_bat_nr2$PercentRemoved==25,])
+Plot_simulation_imputed_bat_nr50 <-t.test(Plot_simulation_imputed_output_bat_nr2[Plot_simulation_imputed_output_bat_nr2$PercentRemoved==50,])
+Plot_simulation_imputed_bat_nr100 <-t.test(Plot_simulation_imputed_output_bat_nr2[Plot_simulation_imputed_output_bat_nr2$PercentRemoved==100,])
+
+Plot_simulation_imputed_bat_nr_CI <- c(Plot_simulation_imputed_bat_nr25$estimate, Plot_simulation_imputed_bat_nr25$conf.int[1], Plot_simulation_imputed_bat_nr25$conf.int[2], 
+                        Plot_simulation_imputed_bat_nr50$estimate, Plot_simulation_imputed_bat_nr50$conf.int[1], Plot_simulation_imputed_bat_nr50$conf.int[2], 
+                        Plot_simulation_imputed_bat_nr100$estimate, Plot_simulation_imputed_bat_nr100$conf.int[1], Plot_simulation_imputed_bat_nr100$conf.int[2])
+
+```
+
+```{r carnivore}
+#Redundancy
+
+Plot_simulation_imputed_output_carnivore <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_carnivore2 <- Plot_simulation_imputed_carnivore %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_carnivore3 <- Plot_simulation_imputed_carnivore2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_carnivore <- rbind(Plot_simulation_imputed_output_carnivore,Plot_simulation_imputed_carnivore3)
+
+}
+
+Plot_simulation_imputed_output_carnivore2 <- Plot_simulation_imputed_output_carnivore %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_carnivore25 <- t.test(Plot_simulation_imputed_output_carnivore2[Plot_simulation_imputed_output_carnivore2$PercentRemoved==25,])
+Plot_simulation_imputed_carnivore50 <-t.test(Plot_simulation_imputed_output_carnivore2[Plot_simulation_imputed_output_carnivore2$PercentRemoved==50,])
+Plot_simulation_imputed_carnivore100 <-t.test(Plot_simulation_imputed_output_carnivore2[Plot_simulation_imputed_output_carnivore2$PercentRemoved==100,])
+
+Plot_simulation_imputed_carnivore_CI <- c(Plot_simulation_imputed_carnivore25$estimate, Plot_simulation_imputed_carnivore25$conf.int[1], Plot_simulation_imputed_carnivore25$conf.int[2], 
+                        Plot_simulation_imputed_carnivore50$estimate, Plot_simulation_imputed_carnivore50$conf.int[1], Plot_simulation_imputed_carnivore50$conf.int[2], 
+                        Plot_simulation_imputed_carnivore100$estimate, Plot_simulation_imputed_carnivore100$conf.int[1], Plot_simulation_imputed_carnivore100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_imputed_output_carnivore_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_carnivore_nr2 <- Plot_simulation_imputed_carnivore_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_carnivore_nr3 <- Plot_simulation_imputed_carnivore_nr2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_carnivore_nr <- rbind(Plot_simulation_imputed_output_carnivore_nr,Plot_simulation_imputed_carnivore_nr3)
+
+}
+
+Plot_simulation_imputed_output_carnivore_nr2 <- Plot_simulation_imputed_output_carnivore_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_carnivore_nr25 <- t.test(Plot_simulation_imputed_output_carnivore_nr2[Plot_simulation_imputed_output_carnivore_nr2$PercentRemoved==25,])
+Plot_simulation_imputed_carnivore_nr50 <-t.test(Plot_simulation_imputed_output_carnivore_nr2[Plot_simulation_imputed_output_carnivore_nr2$PercentRemoved==50,])
+Plot_simulation_imputed_carnivore_nr100 <-t.test(Plot_simulation_imputed_output_carnivore_nr2[Plot_simulation_imputed_output_carnivore_nr2$PercentRemoved==100,])
+
+Plot_simulation_imputed_carnivore_nr_CI <- c(Plot_simulation_imputed_carnivore_nr25$estimate, Plot_simulation_imputed_carnivore_nr25$conf.int[1], Plot_simulation_imputed_carnivore_nr25$conf.int[2], 
+                        Plot_simulation_imputed_carnivore_nr50$estimate, Plot_simulation_imputed_carnivore_nr50$conf.int[1], Plot_simulation_imputed_carnivore_nr50$conf.int[2], 
+                        Plot_simulation_imputed_carnivore_nr100$estimate, Plot_simulation_imputed_carnivore_nr100$conf.int[1], Plot_simulation_imputed_carnivore_nr100$conf.int[2])
+
+```
+
+```{r endangered}
+#Redundancy
+
+Plot_simulation_imputed_output_endangered <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_endangered2 <- Plot_simulation_imputed_endangered %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_endangered3 <- Plot_simulation_imputed_endangered2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_endangered <- rbind(Plot_simulation_imputed_output_endangered,Plot_simulation_imputed_endangered3)
+
+}
+
+Plot_simulation_imputed_output_endangered2 <- Plot_simulation_imputed_output_endangered %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_endangered25 <- t.test(Plot_simulation_imputed_output_endangered2[Plot_simulation_imputed_output_endangered2$PercentRemoved==25,])
+Plot_simulation_imputed_endangered50 <-t.test(Plot_simulation_imputed_output_endangered2[Plot_simulation_imputed_output_endangered2$PercentRemoved==50,])
+Plot_simulation_imputed_endangered100 <-t.test(Plot_simulation_imputed_output_endangered2[Plot_simulation_imputed_output_endangered2$PercentRemoved==100,])
+
+Plot_simulation_imputed_endangered_CI <- c(Plot_simulation_imputed_endangered25$estimate, Plot_simulation_imputed_endangered25$conf.int[1], Plot_simulation_imputed_endangered25$conf.int[2], 
+                        Plot_simulation_imputed_endangered50$estimate, Plot_simulation_imputed_endangered50$conf.int[1], Plot_simulation_imputed_endangered50$conf.int[2], 
+                        Plot_simulation_imputed_endangered100$estimate, Plot_simulation_imputed_endangered100$conf.int[1], Plot_simulation_imputed_endangered100$conf.int[2])
+
+#No Redundancy
+
+Plot_simulation_imputed_output_endangered_nr <- NULL
+
+for(i in 1:100){
+  Plot_simulation_imputed_endangered_nr2 <- Plot_simulation_imputed_endangered_nr %>% dplyr::select(-X) %>% group_by(Plot, PercentRemoved) %>% slice_sample(n=1)
+Plot_simulation_imputed_endangered_nr3 <- Plot_simulation_imputed_endangered_nr2 %>% group_by(PercentRemoved) %>% 
+  dplyr::summarise(mAGB_Change = mean(AGB_Change, na.rm = TRUE),
+            sdAGB_Change = sd(AGB_Change, na.rm = TRUE),
+            nAGB_Change = n()) %>%
+  dplyr::mutate(seAGB_Change = sdAGB_Change / sqrt(nAGB_Change),
+         lower.ciAGB_Change = mAGB_Change - qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change,
+         upper.ciAGB_Change = mAGB_Change + qt(1 - (0.05 / 2), nAGB_Change - 1) * seAGB_Change)
+
+Plot_simulation_imputed_output_endangered_nr <- rbind(Plot_simulation_imputed_output_endangered_nr,Plot_simulation_imputed_endangered_nr3)
+
+}
+
+Plot_simulation_imputed_output_endangered_nr2 <- Plot_simulation_imputed_output_endangered_nr %>% select(PercentRemoved, mAGB_Change)
+
+Plot_simulation_imputed_endangered_nr25 <- t.test(Plot_simulation_imputed_output_endangered_nr2[Plot_simulation_imputed_output_endangered_nr2$PercentRemoved==25,])
+Plot_simulation_imputed_endangered_nr50 <-t.test(Plot_simulation_imputed_output_endangered_nr2[Plot_simulation_imputed_output_endangered_nr2$PercentRemoved==50,])
+Plot_simulation_imputed_endangered_nr100 <-t.test(Plot_simulation_imputed_output_endangered_nr2[Plot_simulation_imputed_output_endangered_nr2$PercentRemoved==100,])
+
+Plot_simulation_imputed_endangered_nr_CI <- c(Plot_simulation_imputed_endangered_nr25$estimate, Plot_simulation_imputed_endangered_nr25$conf.int[1], Plot_simulation_imputed_endangered_nr25$conf.int[2], 
+                        Plot_simulation_imputed_endangered_nr50$estimate, Plot_simulation_imputed_endangered_nr50$conf.int[1], Plot_simulation_imputed_endangered_nr50$conf.int[2], 
+                        Plot_simulation_imputed_endangered_nr100$estimate, Plot_simulation_imputed_endangered_nr100$conf.int[1], Plot_simulation_imputed_endangered_nr100$conf.int[2])
+
+```
+
+
+OBSERVED NETWORK DATA COMPILATION
+```{r Dataframe Compilation}
+
+Plot_simulation_total_CI <- c(Plot_simulation_CI, Plot_simulation_ele_CI, Plot_simulation_ape_CI, Plot_simulation_monkey_CI, Plot_simulation_ceph_CI,  Plot_simulation_bird_CI, Plot_simulation_bat_CI,Plot_simulation_carnivore_CI,Plot_simulation_endangered_CI,
+                    Plot_simulation_CI_nr, Plot_simulation_ele_nr_CI, Plot_simulation_ape_nr_CI,Plot_simulation_monkey_nr_CI, Plot_simulation_ceph_nr_CI,  Plot_simulation_bird_nr_CI, Plot_simulation_bat_nr_CI,Plot_simulation_carnivore_nr_CI,Plot_simulation_endangered_nr_CI)
+
+Taxa1 <- c(rep("Total", each=9), rep("Elephant", each=9), rep("Ape", each=9), rep("Monkey", each=9), rep("Ungulate", each=9), rep("Bird", each=9), rep("Bat", each=9), rep("Carnivore", each=9), rep("Endangered", each=9))
+Taxa <- c(rep(Taxa1, times=2))
+
+Value <- c(rep(c("Mean", "Lower", "Upper"), times=54))
+
+PercentRemoved <- c(rep(c(25, 25, 25, 50, 50, 50, 100, 100, 100), times=27))
+
+DietaryRedundancy <- rep(c("Yes", "No"), each =81)
+
+Plot_simulation_total_CI_df <- as.data.frame(cbind(Plot_simulation_total_CI, Taxa, Value, PercentRemoved, DietaryRedundancy)) %>% distinct()
+
+sim_df <- Plot_simulation_total_CI_df %>% pivot_wider(names_from=Value, values_from=Plot_simulation_total_CI)
+sim_df$Mean <- as.numeric(sim_df$Mean)
+sim_df$Lower <- as.numeric(sim_df$Lower)
+sim_df$Upper <- as.numeric(sim_df$Upper)
+sim_df <- sim_df%>% dplyr::rename(PercentFaunalDegradation= PercentRemoved)
+
+library(ggplot2)
+observed_fig <- ggplot(sim_df, aes(x=factor(Taxa, levels=c("Bird","Carnivore","Bat", "Ungulate","Monkey", "Ape", "Elephant", "Total", "Endangered")), y=Mean, fill=factor(PercentFaunalDegradation, levels=c("100", "50", "25")), alpha=DietaryRedundancy)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+  scale_fill_manual(name = "Faunal Degradation (%)", values=c("#E69F00","#56B4E9", "#009E73"))+
+  xlab("Taxa")+
+  guides(colour = guide_legend(override.aes = list(alpha = 0.5)))+
+   scale_alpha_manual(name="Dietary Redundancy",values=c(0.3, 1))+ 
+  coord_flip()
+
+
+
+```
+
+IMPUTED NETWORK DATA COMPILATION --- Expert B scenario
+```{r Dataframe Compilation}
+Plot_simulation_imputed_total_CI <- c(Plot_simulation_imputed_ele_CI, Plot_simulation_imputed_ape_CI, Plot_simulation_imputed_monkey_CI, Plot_simulation_imputed_bird_CI, Plot_simulation_imputed_ceph_CI, Plot_simulation_imputed_bat_CI, Plot_simulation_imputed_carnivore_CI, Plot_simulation_imputed_endangered_CI, 
+                    Plot_simulation_imputed_ele_nr_CI, Plot_simulation_imputed_ape_nr_CI,Plot_simulation_imputed_monkey_nr_CI,Plot_simulation_imputed_bird_nr_CI,Plot_simulation_imputed_ceph_nr_CI,Plot_simulation_imputed_bat_nr_CI,Plot_simulation_imputed_carnivore_nr_CI,Plot_simulation_imputed_endangered_nr_CI)
+
+Taxa1 <- c(rep("Elephant", each=9), rep("Ape", each=9), rep("Monkey", each=9),rep("Bird", each=9),  rep("Ungulate", each=9),rep("Bat", each=9),rep("Carnivore", each=9),rep("Endangered", each=9))
+Taxa <- c(rep(Taxa1, times=2))
+
+Value <- c(rep(c("Mean", "Lower", "Upper"), times=48))
+
+PercentRemoved <- c(rep(c(25, 25, 25, 50, 50, 50, 100, 100, 100), times=16))
+
+DietaryRedundancy <- rep(c("Yes", "No"), each =72)
+
+Plot_simulation_imputed_total_CI_df <- as.data.frame(cbind(Plot_simulation_imputed_total_CI, Taxa, Value, PercentRemoved, DietaryRedundancy))
+
+sim_df_imputed <- Plot_simulation_imputed_total_CI_df %>% pivot_wider(names_from=Value, values_from=Plot_simulation_imputed_total_CI)
+sim_df_imputed$Mean <- as.numeric(sim_df_imputed$Mean)
+sim_df_imputed$Lower <- as.numeric(sim_df_imputed$Lower)
+sim_df_imputed$Upper <- as.numeric(sim_df_imputed$Upper)
+sim_df_imputed <- sim_df_imputed%>% dplyr::rename(PercentFaunalDegradation= PercentRemoved)
+
+library(ggplot2)
+imputed_fig <- ggplot(sim_df_imputed, aes(x=factor(Taxa), y=Mean, fill=factor(PercentFaunalDegradation, levels=c("100", "50", "25")), alpha=DietaryRedundancy)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+  scale_fill_manual(name = "Faunal Degradation (%)", values=c("#E69F00","#56B4E9", "#009E73"))+
+  xlab("Taxa")+
+  guides(colour = guide_legend(override.aes = list(alpha = 0.5)))+
+   scale_alpha_manual(name="Dietary Redundancy",values=c(0.3, 1))+ 
+  coord_flip()
+
+library(ggpubr)
+
+
+```
+
+
+TOTAL DATA COMPILATION
+```{r Dataframe Compilation}
+sim_df_imputed <- sim_df_imputed
+sim_df_imputed$Model <- "Imputed"
+sim_df$Model <- "Observed"
+sim_df_total <- rbind(sim_df, sim_df_imputed)
+
+write.csv(sim_df_total, "Data/sim_df_total.csv")
+
+sim_df_total <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Data/sim_df_total.csv")
+
+sim_df_total$SimulationType <- paste(sim_df_total$Model,sim_df_total$DietaryRedundancy)
+sim_df_total$SimulationType[sim_df_total$SimulationType=="Observed Yes"] <- "Observed, Compensation"
+sim_df_total$SimulationType[sim_df_total$SimulationType=="Observed No"] <- "Observed, No Compensation"
+sim_df_total$SimulationType[sim_df_total$SimulationType=="Imputed Yes"] <- "Imputed, Compensation"
+sim_df_total$SimulationType[sim_df_total$SimulationType=="Imputed No"] <- "Imputed, No Compensation"
+
+#comparing observed and imputed expert
+total_fig <- ggplot(sim_df_total, aes(x=factor(Taxa), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+  scale_fill_manual(name = "Simulation Type", values=c("deepskyblue3","lightskyblue1","gray50","gray80"))+
+  xlab("Taxa")+
+  coord_flip()+
+  facet_wrap(~factor(PercentFaunalDegradation, levels=c("25", "50", "100")))
+
+
+```
+
+```{r Main Figure}
+
+sim_df_total$PercentFaunalDegradation[sim_df_total$PercentFaunalDegradation=="25"] <- "25%"
+sim_df_total$PercentFaunalDegradation[sim_df_total$PercentFaunalDegradation=="50"] <- "50%"
+sim_df_total$PercentFaunalDegradation[sim_df_total$PercentFaunalDegradation=="100"] <- "100%"
+
+sim_df_total$Mean <- sim_df_total$Mean/1000
+sim_df_total$Upper <- sim_df_total$Upper/1000
+sim_df_total$Lower <- sim_df_total$Lower/1000
+
+
+
+#endangered
+sim_df_endangered <- sim_df_total %>% dplyr::filter(Taxa=="Endangered", DietaryRedundancy=="No")
+sim_df_endangered$SimulationType[sim_df_endangered$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_endangered$SimulationType[sim_df_endangered$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+endangered_fig <- ggplot(sim_df_endangered, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#elephant
+sim_df_elephant <- sim_df_total %>% dplyr::filter(Taxa=="Elephant", DietaryRedundancy=="No")
+sim_df_elephant$SimulationType[sim_df_elephant$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_elephant$SimulationType[sim_df_elephant$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+elephant_fig <- ggplot(sim_df_elephant, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#ape
+sim_df_ape <- sim_df_total %>% dplyr::filter(Taxa=="Ape", DietaryRedundancy=="No")
+sim_df_ape$SimulationType[sim_df_ape$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_ape$SimulationType[sim_df_ape$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+ape_fig <- ggplot(sim_df_ape, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#monkey
+sim_df_monkey <- sim_df_total %>% dplyr::filter(Taxa=="Monkey", DietaryRedundancy=="No")
+sim_df_monkey$SimulationType[sim_df_monkey$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_monkey$SimulationType[sim_df_monkey$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+monkey_fig <- ggplot(sim_df_monkey, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#bird
+sim_df_bird <- sim_df_total %>% dplyr::filter(Taxa=="Bird", DietaryRedundancy=="No")
+sim_df_bird$SimulationType[sim_df_bird$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_bird$SimulationType[sim_df_bird$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+bird_fig <- ggplot(sim_df_bird, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#bat
+sim_df_bat <- sim_df_total %>% dplyr::filter(Taxa=="Bat", DietaryRedundancy=="No")
+sim_df_bat$SimulationType[sim_df_bat$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_bat$SimulationType[sim_df_bat$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+bat_fig <- ggplot(sim_df_bat, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#carnivore
+sim_df_carnivore <- sim_df_total %>% dplyr::filter(Taxa=="Carnivore", DietaryRedundancy=="No")
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+carnivore_fig <- ggplot(sim_df_carnivore, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#Ungulate
+sim_df_Ungulate <- sim_df_total %>% dplyr::filter(Taxa=="Ungulate", DietaryRedundancy=="No")
+sim_df_Ungulate$SimulationType[sim_df_Ungulate$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_Ungulate$SimulationType[sim_df_Ungulate$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+Ungulate_fig <- ggplot(sim_df_Ungulate, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+
+taxa_fig <- ggarrange(elephant_fig, ape_fig, monkey_fig, bat_fig, Ungulate_fig, carnivore_fig, bird_fig, nrow=4, ncol=2, labels = c("b", "c", "d", "e", "f", "g", "h"))
+main_fig <- ggarrange(endangered_fig, taxa_fig, labels = c("a",""), ncol=1, heights = c(1,2))
+
+summary_fd <- sim_df_total %>% filter(SimulationType!="Observed, Compensation", SimulationType!="Imputed, Compensation", Taxa !="Total") %>% select(-DietaryRedundancy, -SimulationType) %>% select(Model, Taxa, PercentFaunalDegradation, Mean, Lower, Upper)
+summary_fd$Mean <- round(summary_fd$Mean)
+summary_fd$Lower <- round(summary_fd$Lower)
+summary_fd$Upper <- round(summary_fd$Upper)
+
+write.csv(summary_fd, "~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/summary_fd.csv")
+
+```
+
+```{r Compensation Figure}
+
+#endangered
+sim_df_endangered_comp <- sim_df_total %>% dplyr::filter(Taxa=="Endangered", DietaryRedundancy=="Yes")
+sim_df_endangered_comp$SimulationType[sim_df_endangered_comp$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_endangered_comp$SimulationType[sim_df_endangered_comp$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+endangered_fig_comp <- ggplot(sim_df_endangered_comp, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-5000, 6500)
+
+#elephant
+sim_df_elephant_comp <- sim_df_total %>% dplyr::filter(Taxa=="Elephant", DietaryRedundancy=="Yes")
+sim_df_elephant_comp$SimulationType[sim_df_elephant_comp$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_elephant_comp$SimulationType[sim_df_elephant_comp$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+elephant_fig_comp <- ggplot(sim_df_elephant_comp, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-5000, 6500)
+
+#ape
+sim_df_ape_comp <- sim_df_total %>% dplyr::filter(Taxa=="Ape", DietaryRedundancy=="Yes")
+sim_df_ape_comp$SimulationType[sim_df_ape_comp$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_ape_comp$SimulationType[sim_df_ape_comp$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+ape_fig_comp <- ggplot(sim_df_ape_comp, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-5000, 6500)
+
+#monkey
+sim_df_monkey_comp <- sim_df_total %>% dplyr::filter(Taxa=="Monkey", DietaryRedundancy=="Yes")
+sim_df_monkey_comp$SimulationType[sim_df_monkey_comp$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_monkey_comp$SimulationType[sim_df_monkey_comp$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+monkey_fig_comp <- ggplot(sim_df_monkey_comp, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-5000, 6500)
+
+#bird
+sim_df_bird_comp <- sim_df_total %>% dplyr::filter(Taxa=="Bird", DietaryRedundancy=="Yes")
+sim_df_bird_comp$SimulationType[sim_df_bird_comp$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_bird_comp$SimulationType[sim_df_bird_comp$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+bird_fig_comp <- ggplot(sim_df_bird_comp, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-5000, 6500)
+
+#bat
+sim_df_bat_comp <- sim_df_total %>% dplyr::filter(Taxa=="Bat", DietaryRedundancy=="Yes")
+sim_df_bat_comp$SimulationType[sim_df_bat_comp$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_bat_comp$SimulationType[sim_df_bat_comp$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+bat_fig_comp <- ggplot(sim_df_bat_comp, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-5000, 6500)
+
+#carnivore
+sim_df_carnivore_comp <- sim_df_total %>% dplyr::filter(Taxa=="Carnivore", DietaryRedundancy=="Yes")
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+carnivore_fig_comp <- ggplot(sim_df_carnivore_comp, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-5000, 6500)
+
+#Ungulate
+sim_df_Ungulate_comp <- sim_df_total %>% dplyr::filter(Taxa=="Ungulate", DietaryRedundancy=="Yes")
+sim_df_Ungulate_comp$SimulationType[sim_df_Ungulate_comp$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_Ungulate_comp$SimulationType[sim_df_Ungulate_comp$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+Ungulate_fig_comp <- ggplot(sim_df_Ungulate_comp, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=SimulationType)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (kg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("lightskyblue","gray80"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-5000, 6500)
+
+
+taxa_fig_comp <- ggarrange(elephant_fig_comp, ape_fig_comp, monkey_fig_comp, bat_fig_comp, Ungulate_fig_comp, carnivore_fig_comp, bird_fig_comp, nrow=4, ncol=2, labels = c("b", "c", "d", "e", "f", "g", "h"))
+main_fig_comp <- ggarrange(endangered_fig_comp, taxa_fig_comp, labels = c("a",""), ncol=1, heights = c(1,2))
+
+```
+
+
+```{r}
+
+sim_df_total_imp_imp <- sim_df_total %>% filter(SimulationType=="Imputed, No Compensation")
+
+#endangered
+sim_df_endangered <- sim_df_total_imp %>% dplyr::filter(Taxa=="Endangered", DietaryRedundancy=="No")
+sim_df_endangered$SimulationType[sim_df_endangered$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_endangered$SimulationType[sim_df_endangered$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+endangered_fig <- ggplot(sim_df_endangered, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#elephant
+sim_df_elephant <- sim_df_total_imp %>% dplyr::filter(Taxa=="Elephant", DietaryRedundancy=="No")
+sim_df_elephant$SimulationType[sim_df_elephant$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_elephant$SimulationType[sim_df_elephant$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+elephant_fig <- ggplot(sim_df_elephant, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#ape
+sim_df_ape <- sim_df_total_imp %>% dplyr::filter(Taxa=="Ape", DietaryRedundancy=="No")
+sim_df_ape$SimulationType[sim_df_ape$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_ape$SimulationType[sim_df_ape$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+ape_fig <- ggplot(sim_df_ape, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#monkey
+sim_df_monkey <- sim_df_total_imp %>% dplyr::filter(Taxa=="Monkey", DietaryRedundancy=="No")
+sim_df_monkey$SimulationType[sim_df_monkey$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_monkey$SimulationType[sim_df_monkey$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+monkey_fig <- ggplot(sim_df_monkey, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#bird
+sim_df_bird <- sim_df_total_imp %>% dplyr::filter(Taxa=="Bird", DietaryRedundancy=="No")
+sim_df_bird$SimulationType[sim_df_bird$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_bird$SimulationType[sim_df_bird$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+bird_fig <- ggplot(sim_df_bird, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#bat
+sim_df_bat <- sim_df_total_imp %>% dplyr::filter(Taxa=="Bat", DietaryRedundancy=="No")
+sim_df_bat$SimulationType[sim_df_bat$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_bat$SimulationType[sim_df_bat$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+bat_fig <- ggplot(sim_df_bat, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#carnivore
+sim_df_carnivore <- sim_df_total_imp %>% dplyr::filter(Taxa=="Carnivore", DietaryRedundancy=="No")
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+carnivore_fig <- ggplot(sim_df_carnivore, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#Ungulate
+sim_df_Ungulate <- sim_df_total_imp %>% dplyr::filter(Taxa=="Ungulate", DietaryRedundancy=="No")
+sim_df_Ungulate$SimulationType[sim_df_Ungulate$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_Ungulate$SimulationType[sim_df_Ungulate$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+Ungulate_fig <- ggplot(sim_df_Ungulate, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change (Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  coord_flip()+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+
+taxa_fig <- ggarrange(elephant_fig, ape_fig, monkey_fig, bat_fig, Ungulate_fig, carnivore_fig, bird_fig, nrow=4, ncol=2, labels = c("b", "c", "d", "e", "f", "g", "h"))
+main_fig <- ggarrange(endangered_fig, taxa_fig, labels = c("a",""), ncol=1, heights = c(1,2))
+
+
+```
+
+
+```{r}
+
+sim_df_total_imp_imp <- sim_df_total %>% filter(SimulationType=="Imputed, No Compensation")
+
+#endangered
+sim_df_endangered <- sim_df_total_imp %>% dplyr::filter(Taxa=="Endangered", DietaryRedundancy=="No")
+sim_df_endangered$SimulationType[sim_df_endangered$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_endangered$SimulationType[sim_df_endangered$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+endangered_fig <- ggplot(sim_df_endangered, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#elephant
+sim_df_elephant <- sim_df_total_imp %>% dplyr::filter(Taxa=="Elephant", DietaryRedundancy=="No")
+sim_df_elephant$SimulationType[sim_df_elephant$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_elephant$SimulationType[sim_df_elephant$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+elephant_fig <- ggplot(sim_df_elephant, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#ape
+sim_df_ape <- sim_df_total_imp %>% dplyr::filter(Taxa=="Ape", DietaryRedundancy=="No")
+sim_df_ape$SimulationType[sim_df_ape$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_ape$SimulationType[sim_df_ape$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+ape_fig <- ggplot(sim_df_ape, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#monkey
+sim_df_monkey <- sim_df_total_imp %>% dplyr::filter(Taxa=="Monkey", DietaryRedundancy=="No")
+sim_df_monkey$SimulationType[sim_df_monkey$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_monkey$SimulationType[sim_df_monkey$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+monkey_fig <- ggplot(sim_df_monkey, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#bird
+sim_df_bird <- sim_df_total_imp %>% dplyr::filter(Taxa=="Bird", DietaryRedundancy=="No")
+sim_df_bird$SimulationType[sim_df_bird$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_bird$SimulationType[sim_df_bird$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+bird_fig <- ggplot(sim_df_bird, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#bat
+sim_df_bat <- sim_df_total_imp %>% dplyr::filter(Taxa=="Bat", DietaryRedundancy=="No")
+sim_df_bat$SimulationType[sim_df_bat$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_bat$SimulationType[sim_df_bat$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+bat_fig <- ggplot(sim_df_bat, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#carnivore
+sim_df_carnivore <- sim_df_total_imp %>% dplyr::filter(Taxa=="Carnivore", DietaryRedundancy=="No")
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+carnivore_fig <- ggplot(sim_df_carnivore, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+#Ungulate
+sim_df_Ungulate <- sim_df_total_imp %>% dplyr::filter(Taxa=="Ungulate", DietaryRedundancy=="No")
+sim_df_Ungulate$SimulationType[sim_df_Ungulate$SimulationType=="Observed, No Compensation"] <- "Observed"
+sim_df_Ungulate$SimulationType[sim_df_Ungulate$SimulationType=="Imputed, No Compensation"] <- "Imputed"
+
+Ungulate_fig <- ggplot(sim_df_Ungulate, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-13.000, 6.500)
+
+
+taxa_fig <- ggarrange(elephant_fig, ape_fig, monkey_fig, bat_fig, Ungulate_fig, carnivore_fig, bird_fig, nrow=2, ncol=4, labels = c("b", "c", "d", "e", "f", "g", "h"))
+main_fig <- ggarrange(endangered_fig, taxa_fig, labels = c("a",""), nrow=1, widths = c(1,2))
+
+ggsave(
+  filename = "main_fig.png",
+  plot = main_fig,
+  width = 12,
+  height = 6,
+  units = "in",
+  dpi = 1000
+)
+
+
+```
+
+
+```{r}
+
+sim_df_total_imp <- sim_df_total %>% filter(SimulationType=="Imputed, Compensation")
+
+#endangered
+sim_df_endangered <- sim_df_total_imp %>% dplyr::filter(Taxa=="Endangered", DietaryRedundancy=="Yes")
+sim_df_endangered$SimulationType[sim_df_endangered$SimulationType=="Observed, Compensation"] <- "Observed"
+sim_df_endangered$SimulationType[sim_df_endangered$SimulationType=="Imputed, Compensation"] <- "Imputed"
+
+endangered_fig <- ggplot(sim_df_endangered, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-1.2,0.3)
+
+#elephant
+sim_df_elephant <- sim_df_total_imp %>% dplyr::filter(Taxa=="Elephant", DietaryRedundancy=="Yes")
+sim_df_elephant$SimulationType[sim_df_elephant$SimulationType=="Observed, Compensation"] <- "Observed"
+sim_df_elephant$SimulationType[sim_df_elephant$SimulationType=="Imputed, Compensation"] <- "Imputed"
+
+elephant_fig <- ggplot(sim_df_elephant, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-1.2,0.3)
+
+#ape
+sim_df_ape <- sim_df_total_imp %>% dplyr::filter(Taxa=="Ape", DietaryRedundancy=="Yes")
+sim_df_ape$SimulationType[sim_df_ape$SimulationType=="Observed, Compensation"] <- "Observed"
+sim_df_ape$SimulationType[sim_df_ape$SimulationType=="Imputed, Compensation"] <- "Imputed"
+
+ape_fig <- ggplot(sim_df_ape, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-1.2,0.3)
+
+#monkey
+sim_df_monkey <- sim_df_total_imp %>% dplyr::filter(Taxa=="Monkey", DietaryRedundancy=="Yes")
+sim_df_monkey$SimulationType[sim_df_monkey$SimulationType=="Observed, Compensation"] <- "Observed"
+sim_df_monkey$SimulationType[sim_df_monkey$SimulationType=="Imputed, Compensation"] <- "Imputed"
+
+monkey_fig <- ggplot(sim_df_monkey, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-1.2,0.3)
+
+#bird
+sim_df_bird <- sim_df_total_imp %>% dplyr::filter(Taxa=="Bird", DietaryRedundancy=="Yes")
+sim_df_bird$SimulationType[sim_df_bird$SimulationType=="Observed, Compensation"] <- "Observed"
+sim_df_bird$SimulationType[sim_df_bird$SimulationType=="Imputed, Compensation"] <- "Imputed"
+
+bird_fig <- ggplot(sim_df_bird, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-1.2,0.3)
+
+#bat
+sim_df_bat <- sim_df_total_imp %>% dplyr::filter(Taxa=="Bat", DietaryRedundancy=="Yes")
+sim_df_bat$SimulationType[sim_df_bat$SimulationType=="Observed, Compensation"] <- "Observed"
+sim_df_bat$SimulationType[sim_df_bat$SimulationType=="Imputed, Compensation"] <- "Imputed"
+
+bat_fig <- ggplot(sim_df_bat, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-1.2,0.3)
+
+#carnivore
+sim_df_carnivore <- sim_df_total_imp %>% dplyr::filter(Taxa=="Carnivore", DietaryRedundancy=="Yes")
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Observed, Compensation"] <- "Observed"
+sim_df_carnivore$SimulationType[sim_df_carnivore$SimulationType=="Imputed, Compensation"] <- "Imputed"
+
+carnivore_fig <- ggplot(sim_df_carnivore, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-1.2,0.3)
+
+#Ungulate
+sim_df_Ungulate <- sim_df_total_imp %>% dplyr::filter(Taxa=="Ungulate", DietaryRedundancy=="Yes")
+sim_df_Ungulate$SimulationType[sim_df_Ungulate$SimulationType=="Observed, Compensation"] <- "Observed"
+sim_df_Ungulate$SimulationType[sim_df_Ungulate$SimulationType=="Imputed, Compensation"] <- "Imputed"
+
+Ungulate_fig <- ggplot(sim_df_Ungulate, aes(x=factor(PercentFaunalDegradation, levels = c("100%", "50%", "25%")), y=Mean, fill=PercentFaunalDegradation)) +
+    geom_bar(position=position_dodge(.9), stat="identity") +
+    geom_errorbar(position=position_dodge(.9), width=.25, aes(ymin=Lower, ymax=Upper)) +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype="longdash") +
+  ylab("Mean AGB Change\n(Mg/ha)")+ 
+   xlab("Scenario")+ 
+  scale_fill_manual(name = "Network Type", values=c("skyblue3","lightskyblue1","lightskyblue"))+
+  theme(legend.position = "none")+
+  ylim(-1.2,0.3)
+
+
+taxa_fig <- ggarrange(elephant_fig, ape_fig, monkey_fig, bat_fig, Ungulate_fig, carnivore_fig, bird_fig, nrow=2, ncol=4, labels = c("b", "c", "d", "e", "f", "g", "h"))
+main_fig_compensation <- ggarrange(endangered_fig, taxa_fig, labels = c("a",""), nrow=1, widths = c(1,2))
+
+ggsave(
+  filename = "main_fig_compensation.png",
+  plot = main_fig_compensation,
+  width = 12,
+  height = 6,
+  units = "in",
+  dpi = 1000
+)
+
+
+```

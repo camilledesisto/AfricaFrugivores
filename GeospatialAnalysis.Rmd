@@ -1,0 +1,452 @@
+---
+title: "AGB_Change_Covs"
+author: "Camille"
+date: "4/3/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Import Data}
+library(ggplot2);library(MuMIn);library(corrplot);library(lme4);library(scales);library(tidyverse);library(ggpubr)
+#Observed Network 
+simdat_endangered_obs <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/endangered/no_redundancy/output.csv")
+simdat_ele_obs <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ele/no_redundancy/output.csv")
+simdat_ceph_obs <-read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ceph/no_redundancy/output.csv")
+simdat_monkey_obs <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/monkey/no_redundancy/output.csv")
+simdat_ape_obs <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/ape/no_redundancy/output.csv")
+simdat_bat_obs <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/bat/no_redundancy/output.csv")
+simdat_bird_obs <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/bird/no_redundancy/output.csv")
+simdat_carnivore_obs <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/Observed/carnivore/no_redundancy/output.csv")
+
+
+#Imputed Network 
+simdat_endangered_imp <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_endangered_nr.csv")
+simdat_ele_imp <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_ele_nr.csv")
+simdat_bat_imp <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bat_nr.csv")
+simdat_bird_imp <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_bird_nr.csv")
+simdat_ape_imp <- read.csv("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/plot_simulations_imputed_ape_nr.csv")
+simdat_ceph_imp <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_ceph_nr.csv")
+simdat_carnivore_imp <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_carnivore_nr.csv")
+simdat_monkey_imp <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/SummaryOutputs/new_plot_simulations_imputed_monkey_nr.csv")
+
+mean(simdat_endangered_imp$AGB_Change)
+mean(simdat_endangered_obs$AGB_Change)
+
+```
+
+```{r Organize Data Frames}
+
+simdat_ele_obs$Taxa <- "Elephant"
+simdat_monkey_obs$Taxa <- "Monkey"
+simdat_ape_obs$Taxa <- "Ape"
+simdat_ceph_obs$Taxa <- "Ungulate"
+simdat_bat_obs$Taxa <- "Bat"
+simdat_bird_obs$Taxa <- "Bird"
+simdat_carnivore_obs$Taxa <- "Carnivore"
+simdat_endangered_obs$Taxa <- "Endangered"
+
+colnames(simdat_ape_obs)[3] <- "DispoCode"
+colnames(simdat_ele_obs)[3] <- "DispoCode"
+colnames(simdat_monkey_obs)[3] <- "DispoCode"
+colnames(simdat_ceph_obs)[3] <- "DispoCode"
+colnames(simdat_bat_obs)[3] <- "DispoCode"
+colnames(simdat_bird_obs)[3] <- "DispoCode"
+colnames(simdat_carnivore_obs)[3] <- "DispoCode"
+colnames(simdat_endangered_obs)[3] <- "DispoCode"
+
+simdat_total_obs <- rbind(simdat_ape_obs, simdat_ele_obs, simdat_monkey_obs, simdat_ceph_obs, simdat_bat_obs,simdat_bird_obs,simdat_carnivore_obs,simdat_endangered_obs)
+
+covs <- read.csv("~/Documents/GitHub/FaunalDegradationAGB/Data/model-data.csv")
+covs$Succession[covs$Succession=="Secondaire exploite"] <- "Secondaire"
+covs2 <- covs %>% select(DispoCode, Latitude, VillDist, Elev, Prec, Temp, Succession)
+covs2$Latitude <- scale(covs2$Latitude)
+covs2$VillDist <- scale(covs2$VillDist)
+covs2$Elev <- scale(covs2$Elev)
+covs2$Prec <- scale(covs2$Prec)
+
+cor(covs2[,2:6])
+
+simdat_total2_obs <- left_join(covs2, simdat_total_obs, by="DispoCode")
+simdat_total2_obs <- simdat_total2_obs %>% filter(PercentRemoved==50)
+#simdat_total2_obs$AGB <- simdat_total2_obs$AGB * -1
+simdat_total2_obs$Succession[simdat_total2_obs$Succession=="Primaire"] <- "aPrimaire"
+
+simdat_ele_imp$Taxa <- "Elephant"
+simdat_monkey_imp$Taxa <- "Monkey"
+simdat_ape_imp$Taxa <- "Ape"
+simdat_ceph_imp$Taxa <- "Ungulate"
+simdat_bat_imp$Taxa <- "Bat"
+simdat_bird_imp$Taxa <- "Bird"
+simdat_carnivore_imp$Taxa <- "Carnivore"
+simdat_endangered_imp$Taxa <- "Endangered"
+
+colnames(simdat_ape_imp)[2] <- "DispoCode"
+colnames(simdat_ele_imp)[2] <- "DispoCode"
+colnames(simdat_monkey_imp)[2] <- "DispoCode"
+colnames(simdat_ceph_imp)[2] <- "DispoCode"
+colnames(simdat_bat_imp)[2] <- "DispoCode"
+colnames(simdat_bird_imp)[2] <- "DispoCode"
+colnames(simdat_carnivore_imp)[2] <- "DispoCode"
+colnames(simdat_endangered_imp)[2] <- "DispoCode"
+
+simdat_total_imp <- rbind(simdat_ape_imp, simdat_ele_imp, simdat_monkey_imp, simdat_ceph_imp, simdat_bat_imp,simdat_bird_imp,simdat_carnivore_imp,simdat_endangered_imp)
+
+simdat_total2_imp <- left_join(covs2, simdat_total_imp, by="DispoCode")
+simdat_total2_imp <- simdat_total2_imp %>% filter(PercentRemoved==50)
+
+
+
+#simdat_total2_imp$AGB <- simdat_total2_imp$AGB * -1
+
+
+
+
+simdat_total2_imp$Succession[simdat_total2_imp$Succession=="Primaire"] <- "aPrimaire"
+
+
+```
+
+```{r Linear Models: Observed}
+#endangered
+simdat_sample_endangered <- simdat_total2_obs %>% filter(Taxa=="Endangered") %>% group_by(DispoCode)
+simdat_mod_endangered <- lm(data=simdat_sample_endangered, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_endangered <- dredge(simdat_mod_endangered)
+options(na.action = "na.omit")
+simdat_mod3_endangered <- model.avg(simdat_mod2_endangered)
+simdat_mod4_endangered <- summary(simdat_mod3_endangered)
+df_endangered <- cbind(as.data.frame(simdat_mod4_endangered$coefmat.subset),as.data.frame(confint(simdat_mod3_endangered)))
+df_endangered$Taxa <- "Endangered"
+df_endangered$Variable <- rownames(df_endangered)
+
+#ele
+simdat_sample_ele <- simdat_total2_obs %>% filter(Taxa=="Elephant") %>% group_by(DispoCode)
+simdat_mod_ele <- lm(data=simdat_sample_ele, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_ele <- dredge(simdat_mod_ele)
+options(na.action = "na.omit")
+simdat_mod3_ele <- model.avg(simdat_mod2_ele)
+simdat_mod4_ele <- summary(simdat_mod3_ele)
+df_ele <- cbind(as.data.frame(simdat_mod4_ele$coefmat.subset),as.data.frame(confint(simdat_mod3_ele)))
+df_ele$Taxa <- "Elephant"
+df_ele$Variable <- rownames(df_ele)
+
+#ape
+simdat_sample_ape <- simdat_total2_obs %>% filter(Taxa=="Ape") %>% group_by(DispoCode)
+simdat_mod_ape <- lm(data=simdat_sample_ape, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_ape <- dredge(simdat_mod_ape)
+options(na.action = "na.omit")
+simdat_mod3_ape <- model.avg(simdat_mod2_ape)
+simdat_mod4_ape <- summary(simdat_mod3_ape)
+df_ape <- cbind(as.data.frame(simdat_mod4_ape$coefmat.subset),as.data.frame(confint(simdat_mod3_ape)))
+df_ape$Taxa <- "ape"
+df_ape$Variable <- rownames(df_ape)
+
+#bat
+simdat_sample_bat <- simdat_total2_obs %>% filter(Taxa=="Bat") %>% group_by(DispoCode)
+simdat_mod_bat <- lm(data=simdat_sample_bat, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_bat <- dredge(simdat_mod_bat)
+options(na.action = "na.omit")
+simdat_mod3_bat <- model.avg(simdat_mod2_bat)
+simdat_mod4_bat <- summary(simdat_mod3_bat)
+df_bat <- cbind(as.data.frame(simdat_mod4_bat$coefmat.subset),as.data.frame(confint(simdat_mod3_bat)))
+df_bat$Taxa <- "bat"
+df_bat$Variable <- rownames(df_bat)
+
+#bird
+simdat_sample_bird <- simdat_total2_obs %>% filter(Taxa=="Bird") %>% group_by(DispoCode)
+simdat_mod_bird <- lm(data=simdat_sample_bird, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_bird <- dredge(simdat_mod_bird)
+options(na.action = "na.omit")
+simdat_mod3_bird <- model.avg(simdat_mod2_bird)
+simdat_mod4_bird <- summary(simdat_mod3_bird)
+df_bird <- cbind(as.data.frame(simdat_mod4_bird$coefmat.subset),as.data.frame(confint(simdat_mod3_bird)))
+df_bird$Taxa <- "bird"
+df_bird$Variable <- rownames(df_bird)
+
+#ceph
+simdat_sample_ceph <- simdat_total2_obs %>% filter(Taxa=="Ungulate") %>% group_by(DispoCode)
+simdat_mod_ceph <- lm(data=simdat_sample_ceph, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_ceph <- dredge(simdat_mod_ceph)
+options(na.action = "na.omit")
+simdat_mod3_ceph <- model.avg(simdat_mod2_ceph)
+simdat_mod4_ceph <- summary(simdat_mod3_ceph)
+df_ceph <- cbind(as.data.frame(simdat_mod4_ceph$coefmat.subset),as.data.frame(confint(simdat_mod3_ceph)))
+df_ceph$Taxa <- "ceph"
+df_ceph$Variable <- rownames(df_ceph)
+
+#carnivore
+simdat_sample_carnivore <- simdat_total2_obs %>% filter(Taxa=="Carnivore") %>% group_by(DispoCode)
+simdat_mod_carnivore <- lm(data=simdat_sample_carnivore, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_carnivore <- dredge(simdat_mod_carnivore)
+options(na.action = "na.omit")
+simdat_mod3_carnivore <- model.avg(simdat_mod2_carnivore)
+simdat_mod4_carnivore <- summary(simdat_mod3_carnivore)
+df_carnivore <- cbind(as.data.frame(simdat_mod4_carnivore$coefmat.subset),as.data.frame(confint(simdat_mod3_carnivore)))
+df_carnivore$Taxa <- "carnivore"
+df_carnivore$Variable <- rownames(df_carnivore)
+
+#monkey
+simdat_sample_monkey <- simdat_total2_obs %>% filter(Taxa=="Monkey") %>% group_by(DispoCode)
+simdat_mod_monkey <- lm(data=simdat_sample_monkey, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_monkey <- dredge(simdat_mod_monkey)
+options(na.action = "na.omit")
+simdat_mod3_monkey <- model.avg(simdat_mod2_monkey)
+simdat_mod4_monkey <- summary(simdat_mod3_monkey)
+df_monkey <- cbind(as.data.frame(simdat_mod4_monkey$coefmat.subset),as.data.frame(confint(simdat_mod3_monkey)))
+df_monkey$Taxa <- "monkey"
+df_monkey$Variable <- rownames(df_monkey)
+
+simdat_observed_total <- rbind(df_endangered, df_ele, df_ape, df_bat, df_bird, df_ceph, df_carnivore, df_monkey)
+simdat_observed_total$Network <- "Observed"
+
+```
+
+```{r Linear Models: Imputed}
+#endangered
+simdat_sample_endangered <- simdat_total2_imp %>% filter(Taxa=="Endangered") %>% group_by(DispoCode)
+simdat_mod_endangered <- lm(data=simdat_sample_endangered, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_endangered <- dredge(simdat_mod_endangered)
+options(na.action = "na.omit")
+simdat_mod3_endangered <- model.avg(simdat_mod2_endangered)
+simdat_mod4_endangered <- summary(simdat_mod3_endangered)
+df_endangered_imp <- cbind(as.data.frame(simdat_mod4_endangered$coefmat.subset),as.data.frame(confint(simdat_mod3_endangered)))
+df_endangered_imp$Taxa <- "Endangered"
+df_endangered_imp$Variable <- rownames(df_endangered_imp)
+
+#ele
+simdat_sample_ele <- simdat_total2_imp %>% filter(Taxa=="Elephant") %>% group_by(DispoCode)
+simdat_mod_ele <- lm(data=simdat_sample_ele, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_ele <- dredge(simdat_mod_ele)
+options(na.action = "na.omit")
+simdat_mod3_ele <- model.avg(simdat_mod2_ele)
+simdat_mod4_ele <- summary(simdat_mod3_ele)
+df_ele_imp <- cbind(as.data.frame(simdat_mod4_ele$coefmat.subset),as.data.frame(confint(simdat_mod3_ele)))
+df_ele_imp$Taxa <- "Elephant"
+df_ele_imp$Variable <- rownames(df_ele_imp)
+
+#ape
+simdat_sample_ape <- simdat_total2_imp %>% filter(Taxa=="Ape") %>% group_by(DispoCode)
+simdat_mod_ape <- lm(data=simdat_sample_ape, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_ape <- dredge(simdat_mod_ape)
+options(na.action = "na.omit")
+simdat_mod3_ape <- model.avg(simdat_mod2_ape)
+simdat_mod4_ape <- summary(simdat_mod3_ape)
+df_ape_imp <- cbind(as.data.frame(simdat_mod4_ape$coefmat.subset),as.data.frame(confint(simdat_mod3_ape)))
+df_ape_imp$Taxa <- "ape"
+df_ape_imp$Variable <- rownames(df_ape_imp)
+
+#bat
+simdat_sample_bat <- simdat_total2_imp %>% filter(Taxa=="Bat") %>% group_by(DispoCode)
+simdat_mod_bat <- lm(data=simdat_sample_bat, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_bat <- dredge(simdat_mod_bat)
+options(na.action = "na.omit")
+simdat_mod3_bat <- model.avg(simdat_mod2_bat)
+simdat_mod4_bat <- summary(simdat_mod3_bat)
+df_bat_imp <- cbind(as.data.frame(simdat_mod4_bat$coefmat.subset),as.data.frame(confint(simdat_mod3_bat)))
+df_bat_imp$Taxa <- "bat"
+df_bat_imp$Variable <- rownames(df_bat_imp)
+
+#bird
+simdat_sample_bird <- simdat_total2_imp %>% filter(Taxa=="Bird") %>% group_by(DispoCode)
+simdat_mod_bird <- lm(data=simdat_sample_bird, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_bird <- dredge(simdat_mod_bird)
+options(na.action = "na.omit")
+simdat_mod3_bird <- model.avg(simdat_mod2_bird)
+simdat_mod4_bird <- summary(simdat_mod3_bird)
+df_bird_imp <- cbind(as.data.frame(simdat_mod4_bird$coefmat.subset),as.data.frame(confint(simdat_mod3_bird)))
+df_bird_imp$Taxa <- "bird"
+df_bird_imp$Variable <- rownames(df_bird_imp)
+
+#ceph
+simdat_sample_ceph <- simdat_total2_imp %>% filter(Taxa=="Ungulate") %>% group_by(DispoCode)
+simdat_mod_ceph <- lm(data=simdat_sample_ceph, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_ceph <- dredge(simdat_mod_ceph)
+options(na.action = "na.omit")
+simdat_mod3_ceph <- model.avg(simdat_mod2_ceph)
+simdat_mod4_ceph <- summary(simdat_mod3_ceph)
+df_ceph_imp <- cbind(as.data.frame(simdat_mod4_ceph$coefmat.subset),as.data.frame(confint(simdat_mod3_ceph)))
+df_ceph_imp$Taxa <- "ceph"
+df_ceph_imp$Variable <- rownames(df_ceph_imp)
+
+#carnivore
+simdat_sample_carnivore <- simdat_total2_imp %>% filter(Taxa=="Carnivore") %>% group_by(DispoCode)
+simdat_mod_carnivore <- lm(data=simdat_sample_carnivore, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_carnivore <- dredge(simdat_mod_carnivore)
+options(na.action = "na.omit")
+simdat_mod3_carnivore <- model.avg(simdat_mod2_carnivore)
+simdat_mod4_carnivore <- summary(simdat_mod3_carnivore)
+df_carnivore_imp <- cbind(as.data.frame(simdat_mod4_carnivore$coefmat.subset),as.data.frame(confint(simdat_mod3_carnivore)))
+df_carnivore_imp$Taxa <- "carnivore"
+df_carnivore_imp$Variable <- rownames(df_carnivore_imp)
+
+#monkey
+simdat_sample_monkey <- simdat_total2_imp %>% filter(Taxa=="Monkey") %>% group_by(DispoCode)
+simdat_mod_monkey <- lm(data=simdat_sample_monkey, AGB_Change ~ Latitude + VillDist+ Elev +Prec+Succession)
+options(na.action = "na.fail")
+simdat_mod2_monkey <- dredge(simdat_mod_monkey)
+options(na.action = "na.omit")
+simdat_mod3_monkey <- model.avg(simdat_mod2_monkey)
+simdat_mod4_monkey <- summary(simdat_mod3_monkey)
+df_monkey_imp <- cbind(as.data.frame(simdat_mod4_monkey$coefmat.subset),as.data.frame(confint(simdat_mod3_monkey)))
+df_monkey_imp$Taxa <- "monkey"
+df_monkey_imp$Variable <- rownames(df_monkey_imp)
+
+simdat_imputed_total <- rbind(df_endangered_imp, df_ele_imp, df_ape_imp, df_bat_imp, df_bird_imp, df_ceph_imp, df_carnivore_imp, df_monkey_imp)
+simdat_imputed_total$Network <- "Imputed"
+
+simdat_total <- rbind(simdat_imputed_total, simdat_observed_total)
+colnames(simdat_total)[6:7] <- c("Lower", "Upper")
+
+simdat_total$Variable[simdat_total$Variable=="SuccessionExploitee"] <- "Logged Forest"
+simdat_total$Variable[simdat_total$Variable=="SuccessionSecondaire"] <- "Secondary Forest"
+simdat_total$Variable[simdat_total$Variable=="VillDist"] <- "Village Dist."
+simdat_total$Variable[simdat_total$Variable=="Elev"] <- "Elevation"
+simdat_total$Variable[simdat_total$Variable=="Prec"] <- "Precipitation"
+
+simdat_total$`Variable Type` <- simdat_total$Variable
+simdat_total$`Variable Type`[simdat_total$`Variable Type`== "(Intercept)"] <- NA
+simdat_total$`Variable Type`[simdat_total$`Variable Type`== "Elevation"] <- "Environmental"
+simdat_total$`Variable Type`[simdat_total$`Variable Type`== "Precipitation" ] <- "Environmental"
+simdat_total$`Variable Type`[simdat_total$`Variable Type`==  "Latitude"] <- "Environmental"
+simdat_total$`Variable Type`[simdat_total$`Variable Type`==  "Logged Forest"] <- "Anthropogenic"
+simdat_total$`Variable Type`[simdat_total$`Variable Type`==  "Secondary Forest"] <- "Anthropogenic"
+simdat_total$`Variable Type`[simdat_total$`Variable Type`==  "Village Dist."] <- "Anthropogenic"
+
+simdat_total2 <- simdat_total[simdat_total$Variable!="(Intercept)",]
+
+```
+
+```{r}
+
+simdat_total2$Estimate <- simdat_total2$Estimate/1000
+simdat_total2$Lower <- simdat_total2$Lower/1000
+simdat_total2$Upper <- simdat_total2$Upper/1000
+
+simdat_total2_imputed <- simdat_total2 %>% filter(Network=="Imputed")
+
+endangered_plot <- ggplot(data=simdat_total2_imputed[simdat_total2_imputed$Taxa=="Endangered",], aes(x= factor(Variable, levels=c("Village Dist.", "Secondary Forest", "Logged Forest", "Precipitation", "Elevation", "Latitude", "(Intercept)")), color=`Variable Type`))+
+  geom_errorbar(position=position_dodge(.7), width=0.4, aes(ymin=Lower, ymax=Upper), size=0.75)+
+  geom_point(position=position_dodge(.7),aes(y=Estimate, color= `Variable Type`), size=3)+
+  scale_color_manual(name="Variable Type", values=c("#5B2A86", "#1F9E89"))+
+  theme_classic()+
+  geom_hline(yintercept = 0, linetype ="dashed")+
+  coord_flip()+
+  xlab("Variable")+ 
+  ylab("AGB Change (Mg/ha)")
+
+ele_plot <- ggplot(data=simdat_total2[simdat_total2$Taxa=="Elephant",], aes(x= factor(Variable, levels=c("Village Dist.", "Secondary Forest", "Logged Forest", "Precipitation", "Elevation", "Latitude", "(Intercept)")), color=Network))+
+  geom_errorbar(position=position_dodge(.7), width=0.4, aes(ymin=Lower, ymax=Upper), size=0.75)+
+  geom_point(position=position_dodge(.7),aes(y=Estimate, color=Network, shape=`Variable Type`), size=3)+
+  scale_color_manual(name="Model Type", values=c("deepskyblue3", "gray50"))+
+  theme_classic()+
+  geom_hline(yintercept = 0, linetype ="dashed")+
+  coord_flip()+
+  xlab("Variable")+ 
+  ylab("AGB Change (Mg/ha)")
+
+ape_plot <- ggplot(data=simdat_total2[simdat_total2$Taxa=="ape",], aes(x= factor(Variable, levels=c("Village Dist.", "Secondary Forest", "Logged Forest", "Precipitation", "Elevation", "Latitude", "(Intercept)")), color=Network))+
+  geom_errorbar(position=position_dodge(.7), width=0.4, aes(ymin=Lower, ymax=Upper), size=0.75)+
+  geom_point(position=position_dodge(.7),aes(y=Estimate, color=Network, shape=`Variable Type`), size=3)+
+  scale_color_manual(name="Model Type", values=c("deepskyblue3", "gray50"))+
+  theme_classic()+
+  geom_hline(yintercept = 0, linetype ="dashed")+
+  coord_flip()+
+  xlab("Variable")+ 
+  ylab("AGB Change (Mg/ha)")
+
+bat_plot <- ggplot(data=simdat_total2[simdat_total2$Taxa=="bat",], aes(x= factor(Variable, levels=c("Village Dist.", "Secondary Forest", "Logged Forest", "Precipitation", "Elevation", "Latitude", "(Intercept)")), color=Network))+
+  geom_errorbar(position=position_dodge(.7), width=0.4, aes(ymin=Lower, ymax=Upper), size=0.75)+
+  geom_point(position=position_dodge(.7),aes(y=Estimate, color=Network, shape=`Variable Type`), size=3)+
+  scale_color_manual(name="Model Type", values=c("deepskyblue3", "gray50"))+
+  theme_classic()+
+  geom_hline(yintercept = 0, linetype ="dashed")+
+  coord_flip()+
+  xlab("Variable")+ 
+  ylab("AGB Change (Mg/ha)")
+
+bird_plot <- ggplot(data=simdat_total2[simdat_total2$Taxa=="bird",], aes(x= factor(Variable, levels=c("Village Dist.", "Secondary Forest", "Logged Forest", "Precipitation", "Elevation", "Latitude", "(Intercept)")), color=Network))+
+  geom_errorbar(position=position_dodge(.7), width=0.4, aes(ymin=Lower, ymax=Upper), size=0.75)+
+  geom_point(position=position_dodge(.7),aes(y=Estimate, color=Network, shape=`Variable Type`), size=3)+
+  scale_color_manual(name="Model Type", values=c("deepskyblue3", "gray50"))+
+  theme_classic()+
+  geom_hline(yintercept = 0, linetype ="dashed")+
+  coord_flip()+
+  xlab("Variable")+ 
+  ylab("AGB Change (Mg/ha)")
+
+carnivore_plot <- ggplot(data=simdat_total2[simdat_total2$Taxa=="carnivore",], aes(x= factor(Variable, levels=c("Village Dist.", "Secondary Forest", "Logged Forest", "Precipitation", "Elevation", "Latitude", "(Intercept)")), color=Network))+
+  geom_errorbar(position=position_dodge(.7), width=0.4, aes(ymin=Lower, ymax=Upper), size=0.75)+
+  geom_point(position=position_dodge(.7),aes(y=Estimate, color=Network, shape=`Variable Type`), size=3)+
+  scale_color_manual(name="Model Type", values=c("deepskyblue3", "gray50"))+
+  theme_classic()+
+  geom_hline(yintercept = 0, linetype ="dashed")+
+  coord_flip()+
+  xlab("Variable")+ 
+  ylab("AGB Change (kg/ha)")
+
+ceph_plot <- ggplot(data=simdat_total2[simdat_total2$Taxa=="ceph",], aes(x= factor(Variable, levels=c("Village Dist.", "Secondary Forest", "Logged Forest", "Precipitation", "Elevation", "Latitude", "(Intercept)")), color=Network))+
+  geom_errorbar(position=position_dodge(.7), width=0.4, aes(ymin=Lower, ymax=Upper), size=0.75)+
+  geom_point(position=position_dodge(.7),aes(y=Estimate, color=Network, shape=`Variable Type`), size=3)+
+  scale_color_manual(name="Model Type", values=c("deepskyblue3", "gray50"))+
+  theme_classic()+
+  geom_hline(yintercept = 0, linetype ="dashed")+
+  coord_flip()+
+  xlab("Variable")+ 
+  ylab("AGB Change (Mg/ha)")
+
+monkey_plot <- ggplot(data=simdat_total2[simdat_total2$Taxa=="monkey",], aes(x= factor(Variable, levels=c("Village Dist.", "Secondary Forest", "Logged Forest", "Precipitation", "Elevation", "Latitude", "(Intercept)")), color=Network))+
+  geom_errorbar(position=position_dodge(.7), width=0.4, aes(ymin=Lower, ymax=Upper), size=0.75)+
+  geom_point(position=position_dodge(.7),aes(y=Estimate, color=Network, shape=`Variable Type`), size=3)+
+  scale_color_manual(name="Model Type", values=c("deepskyblue3", "gray50"))+
+  theme_classic()+
+  geom_hline(yintercept = 0, linetype ="dashed")+
+  coord_flip()+
+  xlab("Variable")+ 
+  ylab("AGB Change (Mg/ha)")
+
+spatial_confint <- ggarrange(ele_plot, ape_plot, monkey_plot, bat_plot, ceph_plot, carnivore_plot, bird_plot, common.legend = TRUE, labels=c("a", "b", "c", "d", "e", "f","g"), ncol=2, nrow=4,legend = NULL)
+
+confint_both2 <- simdat_total2 %>% dplyr::select(Network,Taxa, Variable, Estimate, `z value`, `Pr(>|z|)`)
+confint_both2$Estimate <- round(confint_both2$Estimate, digits = 0)
+confint_both2$`Pr(>|z|)` <- round(confint_both2$`Pr(>|z|)`, digits = 3)
+confint_both2$`z value` <- round(confint_both2$`z value`, digits = 1)
+
+confint_observed <- confint_both2 %>% filter(Network =="Observed") %>% select(-Network)
+confint_imputed <- confint_both2 %>% filter(Network =="Imputed") %>% select(-Network)
+
+write.csv(confint_both2, "~/Documents/GitHub/FaunalDegradationAGB/Outputs/GeospatialSummary.csv")
+write.csv(confint_observed, "~/Documents/GitHub/FaunalDegradationAGB/Outputs/confint_observed.csv")
+write.csv(confint_imputed, "~/Documents/GitHub/FaunalDegradationAGB/Outputs/confint_imputed.csv")
+
+
+
+ggsave(
+  filename = "geospatial_fig.png",
+  plot = endangered_plot,
+  width = 6,
+  height = 4,
+  units = "in",
+  dpi = 1000
+)
+
+```
+
+
+

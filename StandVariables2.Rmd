@@ -1,0 +1,908 @@
+---
+title: "DispersalTrees"
+author: "Camille"
+date: "1/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Read Data}
+wd_path <- "/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/"
+getwd()
+data_path <- 'Data/'
+save_path <- 'Outputs/Expert/'
+source_path <- 'HelperScripts/'
+library(ggpubr)
+
+tdat_frug2_observed <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Data/tdat_frug2_observed.csv")
+tree_dat_observed <- tdat_frug2_observed %>% select(meanWD, D, AGB, Endangered, ele, ape, ceph, monkey, bat, carnivore, bird, ele2, ape2, ceph2, monkey2, bat2, carnivore2, bird2)
+
+tdat_frug2_imputed <- read.csv("~/Documents/GitHub/FaunalDegradationAGBNew/Data/tdat_frug2_imputed.csv")
+
+
+```
+
+```{r Imputed data}
+
+stand_imputed <- list()
+prop_disp <- NULL
+prop_disp_end <- NULL
+
+for(i in 1:100){
+  
+  source("/Users/camilledesisto/Documents/GitHub/FaunalDegradationAGBNew/HelperScripts/SimDataManagement.R")
+
+trees.data2 <- tdat_frug2 %>% select(meanWD, D, AGB, Endangered, ele, ape, ceph, monkey, bat, carnivore, bird, ele2, ape2, ceph2, monkey2, bat2, carnivore2, bird2) %>% pivot_longer(cols = Endangered:bird2, names_to = "Taxa", values_to = "Interaction")%>% mutate(Interaction = as.character(Interaction)) %>% dplyr::group_by(Taxa, Interaction) %>% dplyr::summarize(meanWD =mean(meanWD), D = mean(D), AGB = mean(AGB))
+
+stand_imputed[[i]] <- trees.data2
+
+prop_disp[[i]] <- sum(tdat_frug2$DispersedBinary)/nrow(tdat_frug2)
+prop_disp_end[[i]] <- sum(tdat_frug2$Endangered)/nrow(tdat_frug2)
+ 
+}
+
+df_prop_disp <- unlist(prop_disp)
+df_prop_disp_end <- unlist(prop_disp_end)
+mean(df_prop_disp)
+sd(df_prop_disp)
+mean(df_prop_disp_end)
+sd(df_prop_disp_end)
+
+df_stand_imputed <- bind_rows(stand_imputed, .id = "column_label")
+tree_dat_imputed <- df_stand_imputed %>% mutate(Interaction = as.numeric(Interaction))
+
+```
+
+```{r Means and CIs- Asuming Compensation- Dispered Plants}
+library(BSDA)
+
+#endangered
+endangered_agb <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==1])
+endangered_agb_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+endangered_agb_ci <- endangered_agb_ci1$conf.int
+endangered_agb_ci_l <-endangered_agb_ci[1]
+endangered_agb_ci_u <-endangered_agb_ci[2]
+
+endangered_d <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==1])
+endangered_d_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+endangered_d_ci <- endangered_d_ci1$conf.int
+endangered_d_ci_l <- endangered_d_ci[1]
+endangered_d_ci_u <- endangered_d_ci[2]
+
+endangered_wd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==1])
+endangered_wd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+endangered_wd_ci <- endangered_wd_ci1$conf.int
+endangered_wd_ci_l <- endangered_wd_ci[1]
+endangered_wd_ci_u <- endangered_wd_ci[2]
+
+endangered_agb_og <- mean(tree_dat_observed$AGB[tree_dat_observed$Endangered==1])
+endangered_agb_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$Endangered==1], sigma.x = 2, conf.level = 0.95)
+endangered_agb_ci_og <- endangered_agb_ci1_og$conf.int
+endangered_agb_ci_og_l <- endangered_agb_ci_og[1]
+endangered_agb_ci_og_u <- endangered_agb_ci_og[2]
+
+endangered_d_og <- mean(tree_dat_observed$D[tree_dat_observed$Endangered==1])
+endangered_d_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$Endangered==1], sigma.x = 2, conf.level = 0.95)
+endangered_d_ci_og <- endangered_d_ci1_og$conf.int
+endangered_d_ci_og_l <- endangered_d_ci_og[1]
+endangered_d_ci_og_u <- endangered_d_ci_og[2]
+
+endangered_wd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$Endangered==1])
+endangered_wd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$Endangered==1], sigma.x = 2, conf.level = 0.95)
+endangered_wd_ci_og <- endangered_wd_ci1_og$conf.int
+endangered_wd_ci_og_l <- endangered_wd_ci_og[1]
+endangered_wd_ci_og_u <- endangered_wd_ci_og[2]
+
+#elephant
+ele_agb <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==1])
+ele_agb_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ele_agb_ci <- ele_agb_ci1$conf.int
+ele_agb_ci_l <-ele_agb_ci[1]
+ele_agb_ci_u <-ele_agb_ci[2]
+
+ele_d <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==1])
+ele_d_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ele_d_ci <- ele_d_ci1$conf.int
+ele_d_ci_l <- ele_d_ci[1]
+ele_d_ci_u <- ele_d_ci[2]
+
+ele_wd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==1])
+ele_wd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ele_wd_ci <- ele_wd_ci1$conf.int
+ele_wd_ci_l <- ele_wd_ci[1]
+ele_wd_ci_u <- ele_wd_ci[2]
+
+ele_agb_og <- mean(tree_dat_observed$AGB[tree_dat_observed$ele==1])
+ele_agb_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$ele==1], sigma.x = 2, conf.level = 0.95)
+ele_agb_ci_og <- ele_agb_ci1_og$conf.int
+ele_agb_ci_og_l <- ele_agb_ci_og[1]
+ele_agb_ci_og_u <- ele_agb_ci_og[2]
+
+ele_d_og <- mean(tree_dat_observed$D[tree_dat_observed$ele==1])
+ele_d_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$ele==1], sigma.x = 2, conf.level = 0.95)
+ele_d_ci_og <- ele_d_ci1_og$conf.int
+ele_d_ci_og_l <- ele_d_ci_og[1]
+ele_d_ci_og_u <- ele_d_ci_og[2]
+
+ele_wd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$ele==1])
+ele_wd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$ele==1], sigma.x = 2, conf.level = 0.95)
+ele_wd_ci_og <- ele_wd_ci1_og$conf.int
+ele_wd_ci_og_l <- ele_wd_ci_og[1]
+ele_wd_ci_og_u <- ele_wd_ci_og[2]
+
+#ape
+ape_agb <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==1])
+ape_agb_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ape_agb_ci <- ape_agb_ci1$conf.int
+ape_agb_ci_l <-ape_agb_ci[1]
+ape_agb_ci_u <-ape_agb_ci[2]
+
+ape_d <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==1])
+ape_d_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ape_d_ci <- ape_d_ci1$conf.int
+ape_d_ci_l <- ape_d_ci[1]
+ape_d_ci_u <- ape_d_ci[2]
+
+ape_wd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==1])
+ape_wd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ape_wd_ci <- ape_wd_ci1$conf.int
+ape_wd_ci_l <- ape_wd_ci[1]
+ape_wd_ci_u <- ape_wd_ci[2]
+
+ape_agb_og <- mean(tree_dat_observed$AGB[tree_dat_observed$ape==1])
+ape_agb_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$ape==1], sigma.x = 2, conf.level = 0.95)
+ape_agb_ci_og <- ape_agb_ci1_og$conf.int
+ape_agb_ci_og_l <-ape_agb_ci_og[1]
+ape_agb_ci_og_u <-ape_agb_ci_og[2]
+
+ape_d_og <- mean(tree_dat_observed$D[tree_dat_observed$ape==1])
+ape_d_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$ape==1], sigma.x = 2, conf.level = 0.95)
+ape_d_ci_og <- ape_d_ci1_og$conf.int
+ape_d_ci_og_l <- ape_d_ci_og[1]
+ape_d_ci_og_u <- ape_d_ci_og[2]
+
+ape_wd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$ape==1])
+ape_wd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$ape==1], sigma.x = 2, conf.level = 0.95)
+ape_wd_ci_og <- ape_wd_ci1_og$conf.int
+ape_wd_ci_og_l <- ape_wd_ci_og[1]
+ape_wd_ci_og_u <- ape_wd_ci_og[2]
+
+#monkey
+monkey_agb <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==1])
+monkey_agb_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+monkey_agb_ci <- monkey_agb_ci1$conf.int
+monkey_agb_ci_l <- monkey_agb_ci[1]
+monkey_agb_ci_u <- monkey_agb_ci[2]
+
+monkey_d <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==1])
+monkey_d_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+monkey_d_ci <- monkey_d_ci1$conf.int
+monkey_d_ci_l <- monkey_d_ci[1]
+monkey_d_ci_u <- monkey_d_ci[2]
+
+monkey_wd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==1])
+monkey_wd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+monkey_wd_ci <- monkey_wd_ci1$conf.int
+monkey_wd_ci_l <- monkey_wd_ci[1]
+monkey_wd_ci_u <- monkey_wd_ci[2]
+
+monkey_agb_og <- mean(tree_dat_observed$AGB[tree_dat_observed$monkey==1])
+monkey_agb_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$monkey==1], sigma.x = 2, conf.level = 0.95)
+monkey_agb_ci_og <- monkey_agb_ci1_og$conf.int
+monkey_agb_ci_og_l <- monkey_agb_ci_og[1]
+monkey_agb_ci_og_u <- monkey_agb_ci_og[2]
+
+monkey_d_og <- mean(tree_dat_observed$D[tree_dat_observed$monkey==1])
+monkey_d_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$monkey==1], sigma.x = 2, conf.level = 0.95)
+monkey_d_ci_og <- monkey_d_ci1_og$conf.int
+monkey_d_ci_og_l <- monkey_d_ci_og[1]
+monkey_d_ci_og_u <- monkey_d_ci_og[2]
+
+monkey_wd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$monkey==1])
+monkey_wd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$monkey==1], sigma.x = 2, conf.level = 0.95)
+monkey_wd_ci_og <- monkey_wd_ci1_og$conf.int
+monkey_wd_ci_og_l <- monkey_wd_ci_og[1]
+monkey_wd_ci_og_u <- monkey_wd_ci_og[2]
+
+#bat
+bat_agb <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==1])
+bat_agb_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+bat_agb_ci <- bat_agb_ci1$conf.int
+bat_agb_ci_l <- bat_agb_ci[1]
+bat_agb_ci_u <- bat_agb_ci[2]
+
+bat_d <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==1])
+bat_d_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+bat_d_ci <- bat_d_ci1$conf.int
+bat_d_ci_l <- bat_d_ci[1]
+bat_d_ci_u <- bat_d_ci[2]
+
+bat_wd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==1])
+bat_wd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+bat_wd_ci <- bat_wd_ci1$conf.int
+bat_wd_ci_l <- bat_wd_ci[1]
+bat_wd_ci_u <- bat_wd_ci[2]
+
+bat_agb_og <- mean(tree_dat_observed$AGB[tree_dat_observed$bat==1])
+bat_agb_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$bat==1], sigma.x = 2, conf.level = 0.95)
+bat_agb_ci_og <- bat_agb_ci1_og$conf.int
+bat_agb_ci_og_l <- bat_agb_ci_og[1]
+bat_agb_ci_og_u <- bat_agb_ci_og[2]
+
+bat_d_og <- mean(tree_dat_observed$D[tree_dat_observed$bat==1])
+bat_d_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$bat==1], sigma.x = 2, conf.level = 0.95)
+bat_d_ci_og <- bat_d_ci1_og$conf.int
+bat_d_ci_og_l <- bat_d_ci_og[1]
+bat_d_ci_og_u <- bat_d_ci_og[2]
+
+bat_wd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$bat==1])
+bat_wd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$bat==1], sigma.x = 2, conf.level = 0.95)
+bat_wd_ci_og <- bat_wd_ci1_og$conf.int
+bat_wd_ci_og_l <- bat_wd_ci_og[1]
+bat_wd_ci_og_u <- bat_wd_ci_og[2]
+
+#ceph
+ceph_agb <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==1])
+ceph_agb_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ceph_agb_ci <- ceph_agb_ci1$conf.int
+ceph_agb_ci_l <- ceph_agb_ci[1]
+ceph_agb_ci_u <- ceph_agb_ci[2]
+
+ceph_d <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==1])
+ceph_d_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ceph_d_ci <- ceph_d_ci1$conf.int
+ceph_d_ci_l <- ceph_d_ci[1]
+ceph_d_ci_u <- ceph_d_ci[2]
+
+ceph_wd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==1])
+ceph_wd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+ceph_wd_ci <- ceph_wd_ci1$conf.int
+ceph_wd_ci_l <- ceph_wd_ci[1]
+ceph_wd_ci_u <- ceph_wd_ci[2]
+
+ceph_agb_og <- mean(tree_dat_observed$AGB[tree_dat_observed$ceph==1])
+ceph_agb_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$ceph==1], sigma.x = 2, conf.level = 0.95)
+ceph_agb_ci_og <- ceph_agb_ci1_og$conf.int
+ceph_agb_ci_og_l <- ceph_agb_ci_og[1]
+ceph_agb_ci_og_u <- ceph_agb_ci_og[2]
+
+ceph_d_og <- mean(tree_dat_observed$D[tree_dat_observed$ceph==1])
+ceph_d_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$ceph==1], sigma.x = 2, conf.level = 0.95)
+ceph_d_ci_og <- ceph_d_ci1_og$conf.int
+ceph_d_ci_og_l <- ceph_d_ci_og[1]
+ceph_d_ci_og_u <- ceph_d_ci_og[2]
+
+ceph_wd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$ceph==1])
+ceph_wd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$ceph==1], sigma.x = 2, conf.level = 0.95)
+ceph_wd_ci_og <- ceph_wd_ci1_og$conf.int
+ceph_wd_ci_og_l <- ceph_wd_ci_og[1]
+ceph_wd_ci_og_u <- ceph_wd_ci_og[2]
+
+
+#bird
+bird_agb <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==1])
+bird_agb_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+bird_agb_ci <- bird_agb_ci1$conf.int
+bird_agb_ci_l <- bird_agb_ci[1]
+bird_agb_ci_u <- bird_agb_ci[2]
+
+bird_d <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==1])
+bird_d_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+bird_d_ci <- bird_d_ci1$conf.int
+bird_d_ci_l <- bird_d_ci[1]
+bird_d_ci_u <- bird_d_ci[2]
+
+bird_wd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==1])
+bird_wd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+bird_wd_ci <- bird_wd_ci1$conf.int
+bird_wd_ci_l <- bird_wd_ci[1]
+bird_wd_ci_u <- bird_wd_ci[2]
+
+bird_agb_og <- mean(tree_dat_observed$AGB[tree_dat_observed$bird==1])
+bird_agb_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$bird==1], sigma.x = 2, conf.level = 0.95)
+bird_agb_ci_og <- bird_agb_ci1_og$conf.int
+bird_agb_ci_og_l <- bird_agb_ci_og[1]
+bird_agb_ci_og_u <- bird_agb_ci_og[2]
+
+bird_d_og <- mean(tree_dat_observed$D[tree_dat_observed$bird==1])
+bird_d_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$bird==1], sigma.x = 2, conf.level = 0.95)
+bird_d_ci_og <- bird_d_ci1_og$conf.int
+bird_d_ci_og_l <- bird_d_ci_og[1]
+bird_d_ci_og_u <- bird_d_ci_og[2]
+
+bird_wd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$bird==1])
+bird_wd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$bird==1], sigma.x = 2, conf.level = 0.95)
+bird_wd_ci_og <- bird_wd_ci1_og$conf.int
+bird_wd_ci_og_l <- bird_wd_ci_og[1]
+bird_wd_ci_og_u <- bird_wd_ci_og[2]
+
+
+#carnivore
+carnivore_agb <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==1])
+carnivore_agb_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+carnivore_agb_ci <- carnivore_agb_ci1$conf.int
+carnivore_agb_ci_l <- carnivore_agb_ci[1]
+carnivore_agb_ci_u <- carnivore_agb_ci[2]
+
+carnivore_d <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==1])
+carnivore_d_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+carnivore_d_ci <- carnivore_d_ci1$conf.int
+carnivore_d_ci_l <- carnivore_d_ci[1]
+carnivore_d_ci_u <- carnivore_d_ci[2]
+
+carnivore_wd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==1])
+carnivore_wd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==1], sigma.x = 2, conf.level = 0.95)
+carnivore_wd_ci <- carnivore_wd_ci1$conf.int
+carnivore_wd_ci_l <- carnivore_wd_ci[1]
+carnivore_wd_ci_u <- carnivore_wd_ci[2]
+
+carnivore_agb_og <- mean(tree_dat_observed$AGB[tree_dat_observed$carnivore==1])
+carnivore_agb_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$carnivore==1], sigma.x = 2, conf.level = 0.95)
+carnivore_agb_ci_og <- carnivore_agb_ci1_og$conf.int
+carnivore_agb_ci_og_l <- carnivore_agb_ci_og[1]
+carnivore_agb_ci_og_u <- carnivore_agb_ci_og[2]
+
+carnivore_d_og <- mean(tree_dat_observed$D[tree_dat_observed$carnivore==1])
+carnivore_d_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$carnivore==1], sigma.x = 2, conf.level = 0.95)
+carnivore_d_ci_og <- carnivore_d_ci1_og$conf.int
+carnivore_d_ci_og_l <- carnivore_d_ci_og[1]
+carnivore_d_ci_og_u <- carnivore_d_ci_og[2]
+
+carnivore_wd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$carnivore==1])
+carnivore_wd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$carnivore==1], sigma.x = 2, conf.level = 0.95)
+carnivore_wd_ci_og <- carnivore_wd_ci1_og$conf.int
+carnivore_wd_ci_og_l <- carnivore_wd_ci_og[1]
+carnivore_wd_ci_og_u <- carnivore_wd_ci_og[2]
+
+```
+
+```{r Means and CIs- Assuming Redundancy - Non Dispered Plants}
+
+
+#Endangered
+endangered_agb_nd <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==0])
+endangered_agb_nd_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+endangered_agb_nd_ci <- endangered_agb_nd_ci1$conf.int
+endangered_agb_nd_ci_l <-endangered_agb_nd_ci[1]
+endangered_agb_nd_ci_u <-endangered_agb_nd_ci[2]
+
+endangered_d_nd <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==0])
+endangered_d_nd_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+endangered_d_nd_ci <- endangered_d_nd_ci1$conf.int
+endangered_d_nd_ci_l <- endangered_d_nd_ci[1]
+endangered_d_nd_ci_u <- endangered_d_nd_ci[2]
+
+endangered_wd_nd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==0])
+endangered_wd_nd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="Endangered" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+endangered_wd_nd_ci <- endangered_wd_nd_ci1$conf.int
+endangered_wd_nd_ci_l <- endangered_wd_nd_ci[1]
+endangered_wd_nd_ci_u <- endangered_wd_nd_ci[2]
+
+endangered_agb_nd_og <- mean(tree_dat_observed$AGB[tree_dat_observed$Endangered==0])
+endangered_agb_nd_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$Endangered==0], sigma.x = 2, conf.level = 0.95)
+endangered_agb_nd_ci_og <- endangered_agb_nd_ci1_og$conf.int
+endangered_agb_nd_ci_og_l <- endangered_agb_nd_ci_og[1]
+endangered_agb_nd_ci_og_u <- endangered_agb_nd_ci_og[2]
+
+endangered_d_nd_og <- mean(tree_dat_observed$D[tree_dat_observed$Endangered==0])
+endangered_d_nd_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$Endangered==0], sigma.x = 2, conf.level = 0.95)
+endangered_d_nd_ci_og <- endangered_d_nd_ci1_og$conf.int
+endangered_d_nd_ci_og_l <- endangered_d_nd_ci_og[1]
+endangered_d_nd_ci_og_u <- endangered_d_nd_ci_og[2]
+
+endangered_wd_nd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$Endangered==0])
+endangered_wd_nd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$Endangered==0], sigma.x = 2, conf.level = 0.95)
+endangered_wd_nd_ci_og <- endangered_wd_nd_ci1_og$conf.int
+endangered_wd_nd_ci_og_l <- endangered_wd_nd_ci_og[1]
+endangered_wd_nd_ci_og_u <- endangered_wd_nd_ci_og[2]
+
+
+#elephant
+ele_agb_nd <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==0])
+ele_agb_nd_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ele_agb_nd_ci <- ele_agb_nd_ci1$conf.int
+ele_agb_nd_ci_l <-ele_agb_nd_ci[1]
+ele_agb_nd_ci_u <-ele_agb_nd_ci[2]
+
+ele_d_nd <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==0])
+ele_d_nd_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ele_d_nd_ci <- ele_d_nd_ci1$conf.int
+ele_d_nd_ci_l <- ele_d_nd_ci[1]
+ele_d_nd_ci_u <- ele_d_nd_ci[2]
+
+ele_wd_nd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==0])
+ele_wd_nd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ele" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ele_wd_nd_ci <- ele_wd_nd_ci1$conf.int
+ele_wd_nd_ci_l <- ele_wd_nd_ci[1]
+ele_wd_nd_ci_u <- ele_wd_nd_ci[2]
+
+ele_agb_nd_og <- mean(tree_dat_observed$AGB[tree_dat_observed$ele==0])
+ele_agb_nd_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$ele==0], sigma.x = 2, conf.level = 0.95)
+ele_agb_nd_ci_og <- ele_agb_nd_ci1_og$conf.int
+ele_agb_nd_ci_og_l <- ele_agb_nd_ci_og[1]
+ele_agb_nd_ci_og_u <- ele_agb_nd_ci_og[2]
+
+ele_d_nd_og <- mean(tree_dat_observed$D[tree_dat_observed$ele==0])
+ele_d_nd_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$ele==0], sigma.x = 2, conf.level = 0.95)
+ele_d_nd_ci_og <- ele_d_nd_ci1_og$conf.int
+ele_d_nd_ci_og_l <- ele_d_nd_ci_og[1]
+ele_d_nd_ci_og_u <- ele_d_nd_ci_og[2]
+
+ele_wd_nd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$ele==0])
+ele_wd_nd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$ele==0], sigma.x = 2, conf.level = 0.95)
+ele_wd_nd_ci_og <- ele_wd_nd_ci1_og$conf.int
+ele_wd_nd_ci_og_l <- ele_wd_nd_ci_og[1]
+ele_wd_nd_ci_og_u <- ele_wd_nd_ci_og[2]
+
+
+#ape
+ape_agb_nd <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==0])
+ape_agb_nd_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ape_agb_nd_ci <- ape_agb_nd_ci1$conf.int
+ape_agb_nd_ci_l <-ape_agb_nd_ci[1]
+ape_agb_nd_ci_u <-ape_agb_nd_ci[2]
+
+ape_d_nd <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==0])
+ape_d_nd_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ape_d_nd_ci <- ape_d_nd_ci1$conf.int
+ape_d_nd_ci_l <- ape_d_nd_ci[1]
+ape_d_nd_ci_u <- ape_d_nd_ci[2]
+
+ape_wd_nd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==0])
+ape_wd_nd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ape" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ape_wd_nd_ci <- ape_wd_nd_ci1$conf.int
+ape_wd_nd_ci_l <- ape_wd_nd_ci[1]
+ape_wd_nd_ci_u <- ape_wd_nd_ci[2]
+
+ape_agb_nd_og <- mean(tree_dat_observed$AGB[tree_dat_observed$ape==0])
+ape_agb_nd_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$ape==0], sigma.x = 2, conf.level = 0.95)
+ape_agb_nd_ci_og <- ape_agb_nd_ci1_og$conf.int
+ape_agb_nd_ci_og_l <- ape_agb_nd_ci_og[1]
+ape_agb_nd_ci_og_u <- ape_agb_nd_ci_og[2]
+
+ape_d_nd_og <- mean(tree_dat_observed$D[tree_dat_observed$ape==0])
+ape_d_nd_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$ape==0], sigma.x = 2, conf.level = 0.95)
+ape_d_nd_ci_og <- ape_d_nd_ci1_og$conf.int
+ape_d_nd_ci_og_l <- ape_d_nd_ci_og[1]
+ape_d_nd_ci_og_u <- ape_d_nd_ci_og[2]
+
+ape_wd_nd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$ape==0])
+ape_wd_nd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$ape==0], sigma.x = 2, conf.level = 0.95)
+ape_wd_nd_ci_og <- ape_wd_nd_ci1_og$conf.int
+ape_wd_nd_ci_og_l <- ape_wd_nd_ci_og[1]
+ape_wd_nd_ci_og_u <- ape_wd_nd_ci_og[2]
+
+
+#bat
+bat_agb_nd <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==0])
+bat_agb_nd_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+bat_agb_nd_ci <- bat_agb_nd_ci1$conf.int
+bat_agb_nd_ci_l <-bat_agb_nd_ci[1]
+bat_agb_nd_ci_u <-bat_agb_nd_ci[2]
+
+bat_d_nd <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==0])
+bat_d_nd_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+bat_d_nd_ci <- bat_d_nd_ci1$conf.int
+bat_d_nd_ci_l <- bat_d_nd_ci[1]
+bat_d_nd_ci_u <- bat_d_nd_ci[2]
+
+bat_wd_nd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==0])
+bat_wd_nd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="bat" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+bat_wd_nd_ci <- bat_wd_nd_ci1$conf.int
+bat_wd_nd_ci_l <- bat_wd_nd_ci[1]
+bat_wd_nd_ci_u <- bat_wd_nd_ci[2]
+
+bat_agb_nd_og <- mean(tree_dat_observed$AGB[tree_dat_observed$bat==0])
+bat_agb_nd_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$bat==0], sigma.x = 2, conf.level = 0.95)
+bat_agb_nd_ci_og <- bat_agb_nd_ci1_og$conf.int
+bat_agb_nd_ci_og_l <- bat_agb_nd_ci_og[1]
+bat_agb_nd_ci_og_u <- bat_agb_nd_ci_og[2]
+
+bat_d_nd_og <- mean(tree_dat_observed$D[tree_dat_observed$bat==0])
+bat_d_nd_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$bat==0], sigma.x = 2, conf.level = 0.95)
+bat_d_nd_ci_og <- bat_d_nd_ci1_og$conf.int
+bat_d_nd_ci_og_l <- bat_d_nd_ci_og[1]
+bat_d_nd_ci_og_u <- bat_d_nd_ci_og[2]
+
+bat_wd_nd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$bat==0])
+bat_wd_nd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$bat==0], sigma.x = 2, conf.level = 0.95)
+bat_wd_nd_ci_og <- bat_wd_nd_ci1_og$conf.int
+bat_wd_nd_ci_og_l <- bat_wd_nd_ci_og[1]
+bat_wd_nd_ci_og_u <- bat_wd_nd_ci_og[2]
+
+
+#bird
+bird_agb_nd <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==0])
+bird_agb_nd_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+bird_agb_nd_ci <- bird_agb_nd_ci1$conf.int
+bird_agb_nd_ci_l <-bird_agb_nd_ci[1]
+bird_agb_nd_ci_u <-bird_agb_nd_ci[2]
+
+bird_d_nd <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==0])
+bird_d_nd_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+bird_d_nd_ci <- bird_d_nd_ci1$conf.int
+bird_d_nd_ci_l <- bird_d_nd_ci[1]
+bird_d_nd_ci_u <- bird_d_nd_ci[2]
+
+bird_wd_nd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==0])
+bird_wd_nd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="bird" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+bird_wd_nd_ci <- bird_wd_nd_ci1$conf.int
+bird_wd_nd_ci_l <- bird_wd_nd_ci[1]
+bird_wd_nd_ci_u <- bird_wd_nd_ci[2]
+
+bird_agb_nd_og <- mean(tree_dat_observed$AGB[tree_dat_observed$bird==0])
+bird_agb_nd_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$bird==0], sigma.x = 2, conf.level = 0.95)
+bird_agb_nd_ci_og <- bird_agb_nd_ci1_og$conf.int
+bird_agb_nd_ci_og_l <- bird_agb_nd_ci_og[1]
+bird_agb_nd_ci_og_u <- bird_agb_nd_ci_og[2]
+
+bird_d_nd_og <- mean(tree_dat_observed$D[tree_dat_observed$bird==0])
+bird_d_nd_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$bird==0], sigma.x = 2, conf.level = 0.95)
+bird_d_nd_ci_og <- bird_d_nd_ci1_og$conf.int
+bird_d_nd_ci_og_l <- bird_d_nd_ci_og[1]
+bird_d_nd_ci_og_u <- bird_d_nd_ci_og[2]
+
+bird_wd_nd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$bird==0])
+bird_wd_nd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$bird==0], sigma.x = 2, conf.level = 0.95)
+bird_wd_nd_ci_og <- bird_wd_nd_ci1_og$conf.int
+bird_wd_nd_ci_og_l <- bird_wd_nd_ci_og[1]
+bird_wd_nd_ci_og_u <- bird_wd_nd_ci_og[2]
+
+
+#carnivore
+carnivore_agb_nd <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==0])
+carnivore_agb_nd_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+carnivore_agb_nd_ci <- carnivore_agb_nd_ci1$conf.int
+carnivore_agb_nd_ci_l <-carnivore_agb_nd_ci[1]
+carnivore_agb_nd_ci_u <-carnivore_agb_nd_ci[2]
+
+carnivore_d_nd <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==0])
+carnivore_d_nd_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+carnivore_d_nd_ci <- carnivore_d_nd_ci1$conf.int
+carnivore_d_nd_ci_l <- carnivore_d_nd_ci[1]
+carnivore_d_nd_ci_u <- carnivore_d_nd_ci[2]
+
+carnivore_wd_nd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==0])
+carnivore_wd_nd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="carnivore" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+carnivore_wd_nd_ci <- carnivore_wd_nd_ci1$conf.int
+carnivore_wd_nd_ci_l <- carnivore_wd_nd_ci[1]
+carnivore_wd_nd_ci_u <- carnivore_wd_nd_ci[2]
+
+carnivore_agb_nd_og <- mean(tree_dat_observed$AGB[tree_dat_observed$carnivore==0])
+carnivore_agb_nd_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$carnivore==0], sigma.x = 2, conf.level = 0.95)
+carnivore_agb_nd_ci_og <- carnivore_agb_nd_ci1_og$conf.int
+carnivore_agb_nd_ci_og_l <- carnivore_agb_nd_ci_og[1]
+carnivore_agb_nd_ci_og_u <- carnivore_agb_nd_ci_og[2]
+
+carnivore_d_nd_og <- mean(tree_dat_observed$D[tree_dat_observed$carnivore==0])
+carnivore_d_nd_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$carnivore==0], sigma.x = 2, conf.level = 0.95)
+carnivore_d_nd_ci_og <- carnivore_d_nd_ci1_og$conf.int
+carnivore_d_nd_ci_og_l <- carnivore_d_nd_ci_og[1]
+carnivore_d_nd_ci_og_u <- carnivore_d_nd_ci_og[2]
+
+carnivore_wd_nd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$carnivore==0])
+carnivore_wd_nd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$carnivore==0], sigma.x = 2, conf.level = 0.95)
+carnivore_wd_nd_ci_og <- carnivore_wd_nd_ci1_og$conf.int
+carnivore_wd_nd_ci_og_l <- carnivore_wd_nd_ci_og[1]
+carnivore_wd_nd_ci_og_u <- carnivore_wd_nd_ci_og[2]
+
+#monkey
+monkey_agb_nd <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==0])
+monkey_agb_nd_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+monkey_agb_nd_ci <- monkey_agb_nd_ci1$conf.int
+monkey_agb_nd_ci_l <-monkey_agb_nd_ci[1]
+monkey_agb_nd_ci_u <-monkey_agb_nd_ci[2]
+
+monkey_d_nd <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==0])
+monkey_d_nd_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+monkey_d_nd_ci <- monkey_d_nd_ci1$conf.int
+monkey_d_nd_ci_l <- monkey_d_nd_ci[1]
+monkey_d_nd_ci_u <- monkey_d_nd_ci[2]
+
+monkey_wd_nd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==0])
+monkey_wd_nd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="monkey" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+monkey_wd_nd_ci <- monkey_wd_nd_ci1$conf.int
+monkey_wd_nd_ci_l <- monkey_wd_nd_ci[1]
+monkey_wd_nd_ci_u <- monkey_wd_nd_ci[2]
+
+monkey_agb_nd_og <- mean(tree_dat_observed$AGB[tree_dat_observed$monkey==0])
+monkey_agb_nd_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$monkey==0], sigma.x = 2, conf.level = 0.95)
+monkey_agb_nd_ci_og <- monkey_agb_nd_ci1_og$conf.int
+monkey_agb_nd_ci_og_l <- monkey_agb_nd_ci_og[1]
+monkey_agb_nd_ci_og_u <- monkey_agb_nd_ci_og[2]
+
+monkey_d_nd_og <- mean(tree_dat_observed$D[tree_dat_observed$monkey==0])
+monkey_d_nd_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$monkey==0], sigma.x = 2, conf.level = 0.95)
+monkey_d_nd_ci_og <- monkey_d_nd_ci1_og$conf.int
+monkey_d_nd_ci_og_l <- monkey_d_nd_ci_og[1]
+monkey_d_nd_ci_og_u <- monkey_d_nd_ci_og[2]
+
+monkey_wd_nd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$monkey==0])
+monkey_wd_nd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$monkey==0], sigma.x = 2, conf.level = 0.95)
+monkey_wd_nd_ci_og <- monkey_wd_nd_ci1_og$conf.int
+monkey_wd_nd_ci_og_l <- monkey_wd_nd_ci_og[1]
+monkey_wd_nd_ci_og_u <- monkey_wd_nd_ci_og[2]
+
+
+#ceph
+ceph_agb_nd <- mean(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==0])
+ceph_agb_nd_ci1 <- t.test(tree_dat_imputed$AGB[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ceph_agb_nd_ci <- ceph_agb_nd_ci1$conf.int
+ceph_agb_nd_ci_l <-ceph_agb_nd_ci[1]
+ceph_agb_nd_ci_u <-ceph_agb_nd_ci[2]
+
+ceph_d_nd <- mean(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==0])
+ceph_d_nd_ci1 <- t.test(tree_dat_imputed$D[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ceph_d_nd_ci <- ceph_d_nd_ci1$conf.int
+ceph_d_nd_ci_l <- ceph_d_nd_ci[1]
+ceph_d_nd_ci_u <- ceph_d_nd_ci[2]
+
+ceph_wd_nd <- mean(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==0])
+ceph_wd_nd_ci1 <- t.test(tree_dat_imputed$meanWD[tree_dat_imputed$Taxa=="ceph" &tree_dat_imputed$Interaction==0], sigma.x = 2, conf.level = 0.95)
+ceph_wd_nd_ci <- ceph_wd_nd_ci1$conf.int
+ceph_wd_nd_ci_l <- ceph_wd_nd_ci[1]
+ceph_wd_nd_ci_u <- ceph_wd_nd_ci[2]
+
+ceph_agb_nd_og <- mean(tree_dat_observed$AGB[tree_dat_observed$ceph==0])
+ceph_agb_nd_ci1_og <- t.test(tree_dat_observed$AGB[tree_dat_observed$ceph==0], sigma.x = 2, conf.level = 0.95)
+ceph_agb_nd_ci_og <- ceph_agb_nd_ci1_og$conf.int
+ceph_agb_nd_ci_og_l <- ceph_agb_nd_ci_og[1]
+ceph_agb_nd_ci_og_u <- ceph_agb_nd_ci_og[2]
+
+ceph_d_nd_og <- mean(tree_dat_observed$D[tree_dat_observed$ceph==0])
+ceph_d_nd_ci1_og <- t.test(tree_dat_observed$D[tree_dat_observed$ceph==0], sigma.x = 2, conf.level = 0.95)
+ceph_d_nd_ci_og <- ceph_d_nd_ci1_og$conf.int
+ceph_d_nd_ci_og_l <- ceph_d_nd_ci_og[1]
+ceph_d_nd_ci_og_u <- ceph_d_nd_ci_og[2]
+
+ceph_wd_nd_og <- mean(tree_dat_observed$meanWD[tree_dat_observed$ceph==0])
+ceph_wd_nd_ci1_og <- t.test(tree_dat_observed$meanWD[tree_dat_observed$ceph==0], sigma.x = 2, conf.level = 0.95)
+ceph_wd_nd_ci_og <- ceph_wd_nd_ci1_og$conf.int
+ceph_wd_nd_ci_og_l <- ceph_wd_nd_ci_og[1]
+ceph_wd_nd_ci_og_u <- ceph_wd_nd_ci_og[2]
+```
+
+```{r}
+avg <- c(endangered_agb, endangered_d, endangered_wd, endangered_agb_og, endangered_d_og, endangered_wd_og,
+        ele_agb, ele_d, ele_wd, ele_agb_og, ele_d_og, ele_wd_og,
+        ape_agb, ape_d, ape_wd, ape_agb_og, ape_d_og, ape_wd_og,
+        monkey_agb, monkey_d, monkey_wd, monkey_agb_og, monkey_d_og, monkey_wd_og,
+        bat_agb, bat_d, bat_wd, bat_agb_og, bat_d_og, bat_wd_og,
+         bird_agb, bird_d, bird_wd, bird_agb_og, bird_d_og, bird_wd_og,
+         carnivore_agb, carnivore_d, carnivore_wd, carnivore_agb_og, carnivore_d_og, carnivore_wd_og,
+        ceph_agb, ceph_d, ceph_wd, ceph_agb_og, ceph_d_og, ceph_wd_og,
+        
+        
+        endangered_agb_nd, endangered_d_nd, endangered_wd_nd, endangered_agb_nd_og, endangered_d_nd_og, endangered_wd_nd_og,
+        ele_agb_nd, ele_d_nd, ele_wd_nd, ele_agb_nd_og, ele_d_nd_og, ele_wd_nd_og,
+        ape_agb_nd, ape_d_nd, ape_wd_nd, ape_agb_nd_og, ape_d_nd_og, ape_wd_nd_og,
+        monkey_agb_nd, monkey_d_nd, monkey_wd_nd, monkey_agb_nd_og, monkey_d_nd_og, monkey_wd_nd_og,
+        bat_agb_nd, bat_d_nd, bat_wd_nd, bat_agb_nd_og, bat_d_nd_og, bat_wd_nd_og,
+         bird_agb_nd, bird_d_nd, bird_wd_nd, bird_agb_nd_og, bird_d_nd_og, bird_wd_nd_og,
+         carnivore_agb_nd, carnivore_d_nd, carnivore_wd_nd, carnivore_agb_nd_og, carnivore_d_nd_og, carnivore_wd_nd_og,
+        ceph_agb_nd, ceph_d_nd, ceph_wd_nd, ceph_agb_nd_og, ceph_d_nd_og, ceph_wd_nd_og
+        
+        )
+
+ci_l <- c(endangered_agb_ci_l, endangered_d_ci_l, endangered_wd_ci_l, endangered_agb_ci_og_l, endangered_d_ci_og_l, endangered_wd_ci_og_l,
+        ele_agb_ci_l, ele_d_ci_l, ele_wd_ci_l, ele_agb_ci_og_l, ele_d_ci_og_l, ele_wd_ci_og_l,
+        ape_agb_ci_l, ape_d_ci_l, ape_wd_ci_l, ape_agb_ci_og_l, ape_d_ci_og_l, ape_wd_ci_og_l,
+        monkey_agb_ci_l, monkey_d_ci_l, monkey_wd_ci_l, monkey_agb_ci_og_l, monkey_d_ci_og_l, monkey_wd_ci_og_l,
+        bat_agb_ci_l, bat_d_ci_l, bat_wd_ci_l, bat_agb_ci_og_l, bat_d_ci_og_l, bat_wd_ci_og_l,
+        bird_agb_ci_l, bird_d_ci_l, bird_wd_ci_l, bird_agb_ci_og_l, bird_d_ci_og_l, bird_wd_ci_og_l,
+        carnivore_agb_ci_l, carnivore_d_ci_l, carnivore_wd_ci_l, carnivore_agb_ci_og_l, carnivore_d_ci_og_l, carnivore_wd_ci_og_l,
+        ceph_agb_ci_l, ceph_d_ci_l, ceph_wd_ci_l, ceph_agb_ci_og_l, ceph_d_ci_og_l, ceph_wd_ci_og_l,
+        
+        
+        endangered_agb_nd_ci_l, endangered_d_nd_ci_l, endangered_wd_nd_ci_l, endangered_agb_nd_ci_og_l, endangered_d_nd_ci_og_l, endangered_wd_nd_ci_og_l,
+        ele_agb_nd_ci_l, ele_d_nd_ci_l, ele_wd_nd_ci_l, ele_agb_nd_ci_og_l, ele_d_nd_ci_og_l, ele_wd_nd_ci_og_l,
+        ape_agb_nd_ci_l, ape_d_nd_ci_l, ape_wd_nd_ci_l, ape_agb_nd_ci_og_l, ape_d_nd_ci_og_l, ape_wd_nd_ci_og_l,
+        monkey_agb_nd_ci_l, monkey_d_nd_ci_l, monkey_wd_nd_ci_l, monkey_agb_nd_ci_og_l, monkey_d_nd_ci_og_l, monkey_wd_nd_ci_og_l,
+        bat_agb_nd_ci_l, bat_d_nd_ci_l, bat_wd_nd_ci_l, bat_agb_nd_ci_og_l, bat_d_nd_ci_og_l, bat_wd_nd_ci_og_l,
+        bird_agb_nd_ci_l, bird_d_nd_ci_l, bird_wd_nd_ci_l, bird_agb_nd_ci_og_l, bird_d_nd_ci_og_l, bird_wd_nd_ci_og_l,
+        carnivore_agb_nd_ci_l, carnivore_d_nd_ci_l, carnivore_wd_nd_ci_l, carnivore_agb_nd_ci_og_l, carnivore_d_nd_ci_og_l, carnivore_wd_nd_ci_og_l,
+        ceph_agb_nd_ci_l, ceph_d_nd_ci_l, ceph_wd_nd_ci_l, ceph_agb_nd_ci_og_l, ceph_d_nd_ci_og_l, ceph_wd_nd_ci_og_l
+        )
+
+ci_u <- c(endangered_agb_ci_u, endangered_d_ci_u, endangered_wd_ci_u, endangered_agb_ci_og_u, endangered_d_ci_og_u, endangered_wd_ci_og_u,
+        ele_agb_ci_u, ele_d_ci_u, ele_wd_ci_u, ele_agb_ci_og_u, ele_d_ci_og_u, ele_wd_ci_og_u,
+        ape_agb_ci_u, ape_d_ci_u, ape_wd_ci_u, ape_agb_ci_og_u, ape_d_ci_og_u, ape_wd_ci_og_u,
+        monkey_agb_ci_u, monkey_d_ci_u, monkey_wd_ci_u, monkey_agb_ci_og_u, monkey_d_ci_og_u, monkey_wd_ci_og_u,
+        bat_agb_ci_u, bat_d_ci_u, bat_wd_ci_u, bat_agb_ci_og_u, bat_d_ci_og_u, bat_wd_ci_og_u,
+        bird_agb_ci_u, bird_d_ci_u, bird_wd_ci_u, bird_agb_ci_og_u, bird_d_ci_og_u, bird_wd_ci_og_u,
+        carnivore_agb_ci_u, carnivore_d_ci_u, carnivore_wd_ci_u, carnivore_agb_ci_og_u, carnivore_d_ci_og_u, carnivore_wd_ci_og_u,
+        ceph_agb_ci_u, ceph_d_ci_u, ceph_wd_ci_u, ceph_agb_ci_og_u, ceph_d_ci_og_u, ceph_wd_ci_og_u,
+        
+        
+        endangered_agb_nd_ci_u, endangered_d_nd_ci_u, endangered_wd_nd_ci_u, endangered_agb_nd_ci_og_u, endangered_d_nd_ci_og_u, endangered_wd_nd_ci_og_u,
+        ele_agb_nd_ci_u, ele_d_nd_ci_u, ele_wd_nd_ci_u, ele_agb_nd_ci_og_u, ele_d_nd_ci_og_u, ele_wd_nd_ci_og_u,
+        ape_agb_nd_ci_u, ape_d_nd_ci_u, ape_wd_nd_ci_u, ape_agb_nd_ci_og_u, ape_d_nd_ci_og_u, ape_wd_nd_ci_og_u,
+        monkey_agb_nd_ci_u, monkey_d_nd_ci_u, monkey_wd_nd_ci_u, monkey_agb_nd_ci_og_u, monkey_d_nd_ci_og_u, monkey_wd_nd_ci_og_u,
+        bat_agb_nd_ci_u, bat_d_nd_ci_u, bat_wd_nd_ci_u, bat_agb_nd_ci_og_u, bat_d_nd_ci_og_u, bat_wd_nd_ci_og_u,
+        bird_agb_nd_ci_u, bird_d_nd_ci_u, bird_wd_nd_ci_u, bird_agb_nd_ci_og_u, bird_d_nd_ci_og_u, bird_wd_nd_ci_og_u,
+        carnivore_agb_nd_ci_u, carnivore_d_nd_ci_u, carnivore_wd_nd_ci_u, carnivore_agb_nd_ci_og_u, carnivore_d_nd_ci_og_u, carnivore_wd_nd_ci_og_u,
+        ceph_agb_nd_ci_u, ceph_d_nd_ci_u, ceph_wd_nd_ci_u, ceph_agb_nd_ci_og_u, ceph_d_nd_ci_og_u, ceph_wd_nd_ci_og_u
+        )
+
+
+taxa <- c("endangered","endangered","endangered","endangered","endangered","endangered",
+          "elephant", "elephant","elephant", "elephant","elephant", "elephant",
+          "ape", "ape", "ape", "ape", "ape", "ape",
+          "monkey", "monkey", "monkey", "monkey","monkey", "monkey",
+      "bat", "bat", "bat","bat", "bat", "bat",
+      "bird", "bird",  "bird", "bird",  "bird", "bird",
+      "carnivore", "carnivore", "carnivore", "carnivore", "carnivore", "carnivore", 
+          "ungulate", "ungulate", "ungulate", "ungulate", "ungulate", "ungulate",
+"endangered","endangered","endangered","endangered","endangered","endangered",
+          "elephant", "elephant","elephant", "elephant","elephant", "elephant",
+          "ape", "ape", "ape", "ape", "ape", "ape",
+          "monkey", "monkey", "monkey", "monkey","monkey", "monkey",
+      "bat", "bat", "bat","bat", "bat", "bat",
+"bird", "bird",  "bird", "bird",  "bird", "bird",
+"carnivore", "carnivore", "carnivore", "carnivore", "carnivore", "carnivore", 
+          "ungulate", "ungulate", "ungulate", "ungulate", "ungulate", "ungulate"
+          )
+
+variable <- c("agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd",
+             "agb", "d", "wd", "agb", "d", "wd"
+             )
+
+network <- c("imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original",
+             "imputed", "imputed","imputed", "original", "original", "original"
+             )
+
+dispersed <- rep(c("yes","no"), each=48)
+
+dispersed_plants <- as.data.frame(cbind(avg, ci_l, ci_u, taxa, variable, network, dispersed))
+dispersed_plants$avg <- as.numeric(dispersed_plants$avg)
+dispersed_plants$ci_l <- as.numeric(dispersed_plants$ci_l)
+dispersed_plants$ci_u <- as.numeric(dispersed_plants$ci_u)
+
+colnames(dispersed_plants)[6] <- "Network"
+colnames(dispersed_plants)[7] <- "Dispersed"
+
+dispersed_plants$taxa[dispersed_plants$taxa=="endangered"] <- "Endangered"
+dispersed_plants$taxa[dispersed_plants$taxa=="monkey"] <- "Monkey"
+dispersed_plants$taxa[dispersed_plants$taxa=="elephant"] <- "Elephant"
+dispersed_plants$taxa[dispersed_plants$taxa=="ungulate"] <- "Ungulate"
+dispersed_plants$taxa[dispersed_plants$taxa=="ape"] <- "Ape"
+dispersed_plants$taxa[dispersed_plants$taxa=="bat"] <- "Bat"
+dispersed_plants$taxa[dispersed_plants$taxa=="bird"] <- "Bird"
+dispersed_plants$taxa[dispersed_plants$taxa=="carnivore"] <- "Carnivore"
+dispersed_plants$taxa <- fct_relevel(dispersed_plants$taxa, c("Bird", "Carnivore", "Ungulate","Bat", "Monkey","Ape", "Elephant","Total"))
+dispersed_plants$Network[dispersed_plants$Network=="imputed"] <- "Imputed"
+dispersed_plants$Network[dispersed_plants$Network=="original"] <- "Observed"
+dispersed_plants$Dispersed[dispersed_plants$Dispersed=="yes"] <- "Yes"
+dispersed_plants$Dispersed[dispersed_plants$Dispersed=="no"] <- "No"
+
+```
+
+```{r Endangered Plot}
+#
+dispersed_plants$avg[dispersed_plants$variable=="agb"] <- dispersed_plants$avg[dispersed_plants$variable=="agb"]/1000
+
+dispersed_plants$ci_l[dispersed_plants$variable=="agb"] <- dispersed_plants$ci_l[dispersed_plants$variable=="agb"]/1000
+
+dispersed_plants$ci_u[dispersed_plants$variable=="agb"] <- dispersed_plants$ci_u[dispersed_plants$variable=="agb"]/1000
+
+stand_plot_agb <- ggplot(data = dispersed_plants[dispersed_plants$taxa=="Endangered"&dispersed_plants$variable=="agb",], aes(x=Dispersed, y = avg, color = Network),stat="identity")+
+  geom_point(position=position_dodge(1), size=3)+
+  theme_classic()+
+  scale_color_manual(values=c("deepskyblue3", "grey50"))+
+  ylab("AGB (Mg)")+  
+  geom_errorbar(aes(ymin =ci_l, ymax = ci_u), size=0.5, width =0.3, 
+                 position=position_dodge(1))
+
+stand_plot_dbh <- ggplot(data = dispersed_plants[dispersed_plants$taxa=="Endangered"&dispersed_plants$variable=="d",], aes(x=Dispersed, y = avg, color = Network),stat="identity")+
+  geom_point(position=position_dodge(1), size=3)+
+  theme_classic()+
+  scale_color_manual(values=c("deepskyblue3", "grey50"))+
+  ylab("DBH (cm)")+  
+  geom_errorbar(aes(ymin =ci_l, ymax = ci_u), size=0.5, width =0.3, 
+                 position=position_dodge(1))+ theme(legend.position = "none")
+
+stand_plot_wd <- ggplot(data = dispersed_plants[dispersed_plants$taxa=="Endangered"&dispersed_plants$variable=="wd",], aes(x=Dispersed, y = avg, color = Network),stat="identity")+
+  geom_point(position=position_dodge(1), size=3)+
+  theme_classic()+
+  scale_color_manual(values=c("deepskyblue3", "grey50"))+
+  ylab(expression("WD (g/cm"^3*")"))+  
+  geom_errorbar(aes(ymin =ci_l, ymax = ci_u), size=0.5, width =0.3, 
+                 position=position_dodge(1))+ theme(legend.position = "none")
+
+
+stand_plot_dbh_wd <- ggarrange(stand_plot_dbh , stand_plot_wd, labels = c("b", "c"))
+stand_plot <- ggarrange(stand_plot_agb,stand_plot_dbh_wd, common.legend = TRUE, nrow=2, labels = c("a",""))
+
+```
+
+```{r Taxa Plots}
+
+stand_plot_agb_taxa <- ggplot(data = dispersed_plants[dispersed_plants$taxa!="Endangered"&dispersed_plants$variable=="agb",], aes(x=Dispersed, y = avg, color = Network),stat="identity")+
+  geom_point(position=position_dodge(1), size=3)+
+  theme_classic()+
+  scale_color_manual(values=c("deepskyblue3", "grey50"))+
+  ylab("AGB (Mg)")+  
+  geom_errorbar(aes(ymin =ci_l, ymax = ci_u), size=0.5, width =0.3, 
+                 position=position_dodge(1))+
+  facet_wrap(~taxa)
+
+stand_plot_dbh_taxa <- ggplot(data = dispersed_plants[dispersed_plants$taxa!="Endangered"&dispersed_plants$variable=="d",], aes(x=Dispersed, y = avg, color = Network),stat="identity")+
+  geom_point(position=position_dodge(1), size=3)+
+  theme_classic()+
+  scale_color_manual(values=c("deepskyblue3", "grey50"))+
+  ylab("DBH (cm)")+  
+  geom_errorbar(aes(ymin =ci_l, ymax = ci_u), size=0.5, width =0.3, 
+                 position=position_dodge(1))+ theme(legend.position = "none")+
+  facet_wrap(~taxa)
+
+stand_plot_wd_taxa <- ggplot(data = dispersed_plants[dispersed_plants$taxa!="Endangered"&dispersed_plants$variable=="wd",], aes(x=Dispersed, y = avg, color = Network),stat="identity")+
+  geom_point(position=position_dodge(1), size=3)+
+  theme_classic()+
+  scale_color_manual(values=c("deepskyblue3", "grey50"))+
+  ylab("Wood Density (g/cm3)")+  
+  geom_errorbar(aes(ymin =ci_l, ymax = ci_u), size=0.5, width =0.3, 
+                 position=position_dodge(1))+ theme(legend.position = "none")+
+  facet_wrap(~taxa)
+
+agb_summary <- dispersed_plants %>% filter(variable=="agb") %>% select( Dispersed, Network, taxa, avg, ci_l, ci_u) %>% arrange(desc(Network), taxa) %>% mutate(avg=round(avg, 0), ci_l=round(ci_l, 0), ci_u=round(ci_u, 0))
+
+wd_summary <- dispersed_plants %>% filter(variable=="wd") %>% select( Dispersed, Network, taxa, avg, ci_l, ci_u) %>% arrange(desc(Network), taxa) %>% mutate(avg=round(avg, 3), ci_l=round(ci_l, 3), ci_u=round(ci_u, 3))
+
+dbh_summary <- dispersed_plants %>% filter(variable=="d") %>% select( Dispersed, Network, taxa, avg, ci_l, ci_u) %>% arrange(desc(Network), taxa) %>% mutate(avg=round(avg, 2), ci_l=round(ci_l, 2), ci_u=round(ci_u, 2))
+
+write.csv(agb_summary, "~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/agb_summary.csv")
+write.csv(wd_summary, "~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/wd_summary.csv")
+write.csv(dbh_summary, "~/Documents/GitHub/FaunalDegradationAGBNew/Outputs/dbh_summary.csv")
+
+```
+
+
+```{r}
+
+tree.summary <- dispersed_plants %>% dplyr::select(taxa,Network, Dispersed,  variable, avg, ci_l, ci_u) %>%
+  dplyr::rename(Taxa = taxa, Variable = variable, Mean = avg, Lower_CI = ci_l, Upper_CI= ci_u)
+
+tree.summary$Mean <- round(tree.summary$Mean, digits=3)
+tree.summary$Lower_CI <- round(tree.summary$Lower_CI, digits=3)
+tree.summary$Upper_CI <- round(tree.summary$Upper_CI, digits=3)
+
+tree.summary$Variable[tree.summary$Variable=="agb"] <- "AGB"
+tree.summary$Variable[tree.summary$Variable=="wd"] <- "WD"
+tree.summary$Variable[tree.summary$Variable=="d"] <- "DBH"
+
+write.csv(tree.summary, "SummaryOutputs/StandSummary.csv")
+
+```
+
+
